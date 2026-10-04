@@ -1,0 +1,46 @@
+{
+  "@@locale": "he",
+  "appTitle": "השגרה שלי",
+  "@appTitle": {"description": "App name shown in the task switcher."},
+
+  "greetingMorning": "בוקר טוב{name, select, empty{} other{, {name}}}!",
+  "@greetingMorning": {"description": "Mascot greeting on Home before noon. `name` is the child's name, or the literal 'empty' when not set yet.", "placeholders": {"name": {"type": "String"}}},
+  "greetingNoon": "צהריים טובים{name, select, empty{} other{, {name}}}!",
+  "@greetingNoon": {"placeholders": {"name": {"type": "String"}}},
+  "greetingEvening": "ערב טוב{name, select, empty{} other{, {name}}}!",
+  "@greetingEvening": {"placeholders": {"name": {"type": "String"}}},
+
+  "letsStart": "{gender, select, female{בואי נתחיל!} other{בוא נתחיל!}}",
+  "@letsStart": {"description": "Mascot invitation on Home. Gendered by the child's gender.", "placeholders": {"gender": {"type": "String"}}},
+
+  "routineMorning": "בוקר",
+  "routineNoon": "צהריים",
+  "routineEvening": "ערב",
+  "comingSoon": "בקרוב",
+  "@comingSoon": {"description": "Shown on routine cards that are not available yet."},
+  "routineProgress": "{done} מתוך {total}",
+  "@routineProgress": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "routineFinished": "כל הכבוד! ✨",
+  "@routineFinished": {"description": "Shown on a routine card that was completed today."},
+
+  "doneButton": "סיימתי!",
+  "@doneButton": {"description": "The big Done button on the Task screen. 'סיימתי' is the same for both genders."},
+  "nextUp": "אחר כך:",
+  "@nextUp": {"description": "Label before the small next-task peek."},
+  "replayAudio": "להשמיע שוב",
+  "@replayAudio": {"description": "Tooltip / screen-reader label for the replay-audio button."},
+  "goHome": "חזרה הביתה",
+  "parentMode": "מצב הורים",
+  "@parentMode": {"description": "Tooltip for the gear icon."},
+  "starCount": "{count, plural, =1{כוכב אחד} other{{count} כוכבים}}",
+  "@starCount": {"description": "Screen-reader label for the star counter.", "placeholders": {"count": {"type": "int"}}},
+
+  "celebrationTitle": "{gender, select, female{את אלופה!} other{אתה אלוף!}}",
+  "@celebrationTitle": {"placeholders": {"gender": {"type": "String"}}},
+  "celebrationRoutineDone": "סיימנו את שגרת ה{routine}!",
+  "@celebrationRoutineDone": {"placeholders": {"routine": {"type": "String"}}},
+  "starsEarned": "{count, plural, =0{} =1{קיבלת כוכב אחד!} other{קיבלת {count} כוכבים!}}",
+  "@starsEarned": {"description": "'קיבלת' is spelled the same for both genders.", "placeholders": {"count": {"type": "int"}}},
+  "starsTotal": "יש לך {count} ⭐",
+  "@starsTotal": {"placeholders": {"count": {"type": "int"}}}
+}
