@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -16,6 +15,7 @@ import '../../services/audio_service.dart';
 import '../../state/providers.dart';
 import '../mascot/mascot.dart';
 import '../theme.dart';
+import '../widgets/picture_circle.dart';
 import '../widgets/star_burst.dart';
 import '../widgets/star_counter.dart';
 import 'pie_timer.dart';
@@ -208,9 +208,10 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
                                 color: AppColors.timer,
                                 trackColor: AppColors.timerTrack,
                                 child: Center(
-                                  child: _TaskPicture(
-                                    task: current.task,
+                                  child: PictureCircle(
                                     size: size * 0.62,
+                                    photoPath: current.task.photoPath,
+                                    emoji: current.task.emoji,
                                   ),
                                 ),
                               ),
@@ -278,41 +279,6 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
           ),
         ),
       ),
-    );
-  }
-}
-
-class _TaskPicture extends StatelessWidget {
-  const _TaskPicture({required this.task, required this.size});
-
-  final Task task;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final photo = task.photoPath;
-    return Container(
-      width: size,
-      height: size,
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        shape: BoxShape.circle,
-      ),
-      clipBehavior: Clip.antiAlias,
-      alignment: Alignment.center,
-      child: photo != null && File(photo).existsSync()
-          ? Image.file(
-              File(photo),
-              fit: BoxFit.cover,
-              width: size,
-              height: size,
-            )
-          : ExcludeSemantics(
-              child: Text(
-                task.emoji ?? '⭐',
-                style: TextStyle(fontSize: size * 0.5),
-              ),
-            ),
     );
   }
 }

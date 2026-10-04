@@ -7,6 +7,7 @@ import '../../l10n/gen/app_localizations.dart';
 import '../../state/providers.dart';
 import '../labels.dart';
 import '../mascot/mascot.dart';
+import '../parent/gate/gear_hold_button.dart';
 import '../theme.dart';
 import '../widgets/star_counter.dart';
 
@@ -35,17 +36,9 @@ class HomeScreen extends ConsumerWidget {
               children: [
                 StarCounter(count: stars),
                 const Spacer(),
-                // Parent entry. The long-press gate arrives in M2.
-                Tooltip(
-                  message: l.parentMode,
-                  child: const Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Icon(
-                      Icons.settings_rounded,
-                      color: AppColors.inkSoft,
-                      size: 26,
-                    ),
-                  ),
+                GearHoldButton(
+                  tooltip: l.holdForParents,
+                  onHeld: () => context.push('/gate'),
                 ),
               ],
             ),

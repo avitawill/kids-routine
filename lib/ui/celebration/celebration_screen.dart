@@ -45,6 +45,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen> {
     final session = ref.watch(sessionProvider(widget.type)).value;
     final earned = (session?.progress.doneCount ?? 0) * StarRules.perTask;
     final total = ref.watch(starBalanceProvider).value ?? 0;
+    final reward = ref.watch(nextRewardProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -85,6 +86,29 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen> {
                 style: t.titleLarge,
                 textAlign: TextAlign.center,
               ),
+              if (reward != null) ...[
+                const SizedBox(height: 20),
+                Text(
+                  reward.isReady
+                      ? l.rewardReady(reward.goal.name)
+                      : l.rewardToGo(reward.starsToGo, reward.goal.name),
+                  style: t.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: reward.fraction,
+                      minHeight: 18,
+                      color: AppColors.star,
+                      backgroundColor: AppColors.surface,
+                    ),
+                  ),
+                ),
+              ],
               const Spacer(),
               SizedBox(
                 width: double.infinity,
