@@ -14,3 +14,8 @@ abstract final class StarRules {
     StarReason.redemption => delta < 0,
   };
 }
+
+/// Whether a reward costing [cost] can be redeemed with [balance] stars.
+/// Redemption never takes the balance below zero.
+bool canRedeem({required int balance, required int cost}) =>
+    cost > 0 && balance >= cost;
