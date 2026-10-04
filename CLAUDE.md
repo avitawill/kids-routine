@@ -21,7 +21,9 @@ Local-only for now: installed from my machine via `flutter run` / APK sideload. 
 - Audio: just_audio (playback), record (parent recordings), flutter_tts (fallback voice)
 - Images: image_picker
 - Celebration: confetti package or hand-rolled; every animation <= 1.5 s
-- Font: one bundled rounded font covering Hebrew and Spanish accents. Try Varela Round or Fredoka; verify glyphs (א–ת, ñ á é í ó ú ü ¡ ¿) before choosing. Bundle as an asset, never fetch fonts at runtime.
+- Font: **Fredoka** (OFL), bundled in `assets/fonts/` as static 400/500/600/700 instances cut from the variable font. Chosen over Varela Round (single weight); both had full glyph coverage (א–ת, ׳ ״, ñ á é í ó ú ü ¡ ¿). Never fetch fonts at runtime.
+- Approved extras: `drift_flutter` (SQLite native libs + path_provider), `drift_dev` (codegen), `flutter_lints` (dev).
+- Sounds: synthesized by `tool/make_sounds.py` into `assets/sounds/` (no third-party audio).
 
 Ask me before adding any dependency not on this list.
 
@@ -54,6 +56,12 @@ Ask me before adding any dependency not on this list.
 - `RunLog(id, date, routineId, taskId, startedAt, completedAt)`
 - `Reward(id, name, photoPath?, starCost, redeemedAt?)`
 - `StarLedger(id, date, delta, reason, refId)`: balance = sum(delta); only redemptions are negative.
+
+Implementation notes (M1):
+- `date` columns are local days as `yyyy-MM-dd` text. Routine `startTime` is stored as `startMinutes` (minutes after midnight); `daysOfWeek` is a bitmask (Monday = bit 0 … Sunday = bit 6).
+- `Task.builtInKey` (e.g. `brush_teeth`) is a stable id for seeded tasks; null for custom ones. `RoutineTask` has its own `id`. Built-in tasks shared by routines (toothbrushing) are one Task row.
+- A RunLog row is created when a task first appears (its timer starts then; unique per date/routine/task, so the timer survives restarts) and completed on Done. 1 star per task done; a task already done today awards nothing more; no bonus for finishing a routine.
+- The release build strips INTERNET and AD_ID via `android/app/src/release/AndroidManifest.xml` (`tools:node="remove"`). The debug manifest keeps INTERNET for `flutter run`/hot reload.
 
 ## Built-in task library (seed)
 Task names are nouns, so they are gender-neutral ("צחצוח שיניים", not "תצחצחי"). Default minutes in parentheses. Fill Spanish and English names for every task and list them for my review.
