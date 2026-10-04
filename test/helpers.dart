@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:kids_routine/data/db/database.dart';
 import 'package:kids_routine/services/audio_service.dart';
+import 'package:kids_routine/services/media_store.dart';
+import 'package:kids_routine/services/recorder.dart';
 
 AppDatabase makeTestDb() => AppDatabase(
   DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true),
@@ -36,7 +40,38 @@ class FakeAudio implements AudioCues {
   Future<void> playCelebration() async => events.add('celebration');
 
   @override
+  Future<void> playFile(String relativePath) async =>
+      events.add('play:$relativePath');
+
+  @override
   Future<void> stop() async {}
+
+  @override
+  Future<void> dispose() async {}
+}
+
+/// A media store in a fresh temp folder.
+MediaStore makeTestMedia() =>
+    MediaStore(Directory.systemTemp.createTempSync('kids_routine_test'));
+
+/// Writes a small file instead of using the microphone.
+class FakeRecorder implements VoiceRecorder {
+  bool allowed = true;
+  String? recordingTo;
+
+  @override
+  Future<bool> start(String absolutePath) async {
+    if (!allowed) return false;
+    recordingTo = absolutePath;
+    return true;
+  }
+
+  @override
+  Future<void> stop() async {
+    final path = recordingTo;
+    if (path != null) File(path).writeAsStringSync('fake audio');
+    recordingTo = null;
+  }
 
   @override
   Future<void> dispose() async {}
