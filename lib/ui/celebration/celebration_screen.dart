@@ -56,8 +56,8 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen> {
               const Stack(
                 alignment: Alignment.center,
                 children: [
-                  Mascot(mood: MascotMood.cheer, size: 200),
                   StarBurst(size: 320),
+                  Mascot(mood: MascotMood.cheer, size: 200),
                 ],
               ),
               const SizedBox(height: 16),

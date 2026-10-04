@@ -27,6 +27,7 @@ ThemeData buildTheme() {
     colorScheme: scheme,
     scaffoldBackgroundColor: AppColors.background,
     fontFamily: 'Fredoka',
+    fontFamilyFallback: const ['Noto Color Emoji'],
     textTheme: const TextTheme(
       displaySmall: TextStyle(
         fontWeight: FontWeight.w700,

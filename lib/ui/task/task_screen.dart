@@ -34,7 +34,7 @@ class TaskScreen extends ConsumerStatefulWidget {
 class _TaskScreenState extends ConsumerState<TaskScreen>
     with SingleTickerProviderStateMixin {
   late final AudioCues _audio = ref.read(audioProvider);
-  late final Ticker _ticker = createTicker(_onTick)..start();
+  late final Ticker _ticker;
 
   /// Task whose timer and announcement have been started on this screen.
   int? _activeTaskId;
@@ -49,6 +49,12 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
   /// While the star burst plays, keep showing the task that was just done.
   (SessionTask, SessionTask?)? _frozen;
   bool _leaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = createTicker(_onTick)..start();
+  }
 
   @override
   void dispose() {
@@ -260,7 +266,9 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    onPressed: _frozen == null ? () => _onDone(session) : null,
+                    // Stays enabled (and green) during the burst; _onDone ignores
+                    // repeat taps. A greyed-out button would read as "wrong".
+                    onPressed: () => _onDone(session),
                     icon: const Icon(Icons.check_rounded, size: 40),
                     label: Text(l.doneButton),
                   ),
