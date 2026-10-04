@@ -22,7 +22,7 @@ Local-only for now: installed from my machine via `flutter run` / APK sideload. 
 - Images: image_picker
 - Celebration: confetti package or hand-rolled; every animation <= 1.5 s
 - Font: **Fredoka** (OFL), bundled in `assets/fonts/` as static 400/500/600/700 instances cut from the variable font. Chosen over Varela Round (single weight); both had full glyph coverage (א–ת, ׳ ״, ñ á é í ó ú ü ¡ ¿). Never fetch fonts at runtime.
-- Approved extras: `drift_flutter` (SQLite native libs + path_provider), `drift_dev` (codegen), `flutter_lints` (dev).
+- Approved extras: `drift_flutter` (SQLite native libs), `drift_dev` (codegen), `flutter_lints` (dev), `path_provider` (app documents folder).
 - Sounds: synthesized by `tool/make_sounds.py` into `assets/sounds/` (no third-party audio).
 
 Ask me before adding any dependency not on this list.
@@ -62,6 +62,16 @@ Implementation notes (M1):
 - `Task.builtInKey` (e.g. `brush_teeth`) is a stable id for seeded tasks; null for custom ones. `RoutineTask` has its own `id`. Built-in tasks shared by routines (toothbrushing) are one Task row.
 - A RunLog row is created when a task first appears (its timer starts then; unique per date/routine/task, so the timer survives restarts) and completed on Done. 1 star per task done; a task already done today awards nothing more; no bonus for finishing a routine.
 - The release build strips INTERNET and AD_ID via `android/app/src/release/AndroidManifest.xml` (`tools:node="remove"`). The debug manifest keeps INTERNET for `flutter run`/hot reload.
+
+Implementation notes (M2):
+- Photos and recordings live under the app documents folder in `media/photos/` and `media/audio/`; the DB stores paths **relative** to that folder (`MediaStore`), so a backup can be restored on a new install. Photos are scaled to <= 1024 px. Unsaved or replaced media files are deleted (`MediaDraft`).
+- Permissions: only RECORD_AUDIO (declared by `record`, requested on first tap of Record). Camera/gallery go through system intents (image_picker), so no CAMERA or storage permission.
+- Parent gate: hold the gear 2 s (a ring fills), then a times-table question (factors 3–9) on an LTR number pad; a wrong answer shows a new question, no lockout. Parent mode stays unlocked until Exit or until the app is hidden; the camera/gallery/mic-permission round trip does not lock it.
+- Rewards are one-time: redeeming stamps `redeemedAt` and adds one negative `redemption` ledger entry (only if balance >= cost). "Offer again" creates a fresh copy (with its own copy of the photo). The Celebration screen shows progress to the cheapest unredeemed reward.
+- Settings (pulled into M2 with approval): child name, gender, mascot name. Language, Jewish pack, backup stay in M3/M4.
+- Built-in tasks can be edited but not deleted (only removed from routines). Deleting a custom task also deletes its run history (cascade); stars already earned stay.
+- Daily summary: per task, time from when it appeared on screen to Done, next to its target; per routine, start → finish. Neutral styling, no red. The reminder switch is stored only; notifications arrive in M3.
+- Widget tests unmount the app before closing the test DB (otherwise a failing test hangs the runner). Prefer one-off `get…()` queries over `watch…().first` for single reads.
 
 ## Built-in task library (seed)
 Task names are nouns, so they are gender-neutral ("צחצוח שיניים", not "תצחצחי"). Default minutes in parentheses. Fill Spanish and English names for every task and list them for my review.
