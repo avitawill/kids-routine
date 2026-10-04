@@ -6,11 +6,33 @@ import 'router.dart';
 import 'state/providers.dart';
 import 'ui/theme.dart';
 
-class KidsRoutineApp extends ConsumerWidget {
+class KidsRoutineApp extends ConsumerStatefulWidget {
   const KidsRoutineApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<KidsRoutineApp> createState() => _KidsRoutineAppState();
+}
+
+class _KidsRoutineAppState extends ConsumerState<KidsRoutineApp> {
+  // Parent mode never stays open in the background.
+  late final _lifecycle = AppLifecycleListener(
+    onHide: () => ref.read(parentSessionProvider.notifier).onAppHidden(),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle; // start listening
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,

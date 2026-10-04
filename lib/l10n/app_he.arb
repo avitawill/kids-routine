@@ -1,46 +1,356 @@
 {
   "@@locale": "he",
   "appTitle": "השגרה שלי",
-  "@appTitle": {"description": "App name shown in the task switcher."},
-
+  "@appTitle": {
+    "description": "App name shown in the task switcher."
+  },
   "greetingMorning": "בוקר טוב{name, select, empty{} other{, {name}}}!",
-  "@greetingMorning": {"description": "Mascot greeting on Home before noon. `name` is the child's name, or the literal 'empty' when not set yet.", "placeholders": {"name": {"type": "String"}}},
+  "@greetingMorning": {
+    "description": "Mascot greeting on Home before noon. `name` is the child's name, or the literal 'empty' when not set yet.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "greetingNoon": "צהריים טובים{name, select, empty{} other{, {name}}}!",
-  "@greetingNoon": {"placeholders": {"name": {"type": "String"}}},
+  "@greetingNoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "greetingEvening": "ערב טוב{name, select, empty{} other{, {name}}}!",
-  "@greetingEvening": {"placeholders": {"name": {"type": "String"}}},
-
+  "@greetingEvening": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "letsStart": "{gender, select, female{בואי נתחיל!} other{בוא נתחיל!}}",
-  "@letsStart": {"description": "Mascot invitation on Home. Gendered by the child's gender.", "placeholders": {"gender": {"type": "String"}}},
-
+  "@letsStart": {
+    "description": "Mascot invitation on Home. Gendered by the child's gender.",
+    "placeholders": {
+      "gender": {
+        "type": "String"
+      }
+    }
+  },
   "routineMorning": "בוקר",
   "routineNoon": "צהריים",
   "routineEvening": "ערב",
   "comingSoon": "בקרוב",
-  "@comingSoon": {"description": "Shown on routine cards that are not available yet."},
+  "@comingSoon": {
+    "description": "Shown on routine cards that are not available yet."
+  },
   "routineProgress": "{done} מתוך {total}",
-  "@routineProgress": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "@routineProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "routineFinished": "כל הכבוד! ✨",
-  "@routineFinished": {"description": "Shown on a routine card that was completed today."},
-
+  "@routineFinished": {
+    "description": "Shown on a routine card that was completed today."
+  },
   "doneButton": "סיימתי!",
-  "@doneButton": {"description": "The big Done button on the Task screen. 'סיימתי' is the same for both genders."},
+  "@doneButton": {
+    "description": "The big Done button on the Task screen. 'סיימתי' is the same for both genders."
+  },
   "nextUp": "אחר כך:",
-  "@nextUp": {"description": "Label before the small next-task peek."},
+  "@nextUp": {
+    "description": "Label before the small next-task peek."
+  },
   "replayAudio": "להשמיע שוב",
-  "@replayAudio": {"description": "Tooltip / screen-reader label for the replay-audio button."},
+  "@replayAudio": {
+    "description": "Tooltip / screen-reader label for the replay-audio button."
+  },
   "goHome": "חזרה הביתה",
   "parentMode": "מצב הורים",
-  "@parentMode": {"description": "Tooltip for the gear icon."},
+  "@parentMode": {
+    "description": "Tooltip for the gear icon."
+  },
   "starCount": "{count, plural, =1{כוכב אחד} other{{count} כוכבים}}",
-  "@starCount": {"description": "Screen-reader label for the star counter.", "placeholders": {"count": {"type": "int"}}},
-
+  "@starCount": {
+    "description": "Screen-reader label for the star counter.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "celebrationTitle": "{gender, select, female{את אלופה!} other{אתה אלוף!}}",
-  "@celebrationTitle": {"placeholders": {"gender": {"type": "String"}}},
+  "@celebrationTitle": {
+    "placeholders": {
+      "gender": {
+        "type": "String"
+      }
+    }
+  },
   "celebrationRoutineDone": "סיימנו את שגרת ה{routine}!",
-  "@celebrationRoutineDone": {"placeholders": {"routine": {"type": "String"}}},
+  "@celebrationRoutineDone": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
   "starsEarned": "{count, plural, =0{} =1{קיבלת כוכב אחד!} other{קיבלת {count} כוכבים!}}",
-  "@starsEarned": {"description": "'קיבלת' is spelled the same for both genders.", "placeholders": {"count": {"type": "int"}}},
+  "@starsEarned": {
+    "description": "'קיבלת' is spelled the same for both genders.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "starsTotal": "יש לך {count} ⭐",
-  "@starsTotal": {"placeholders": {"count": {"type": "int"}}}
+  "@starsTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardToGo": "{count, plural, =1{עוד כוכב אחד ל{name}!} other{עוד {count} כוכבים ל{name}!}}",
+  "@rewardToGo": {
+    "description": "Celebration: stars left to the next reward.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rewardReady": "יש מספיק כוכבים ל{name}! 🎉",
+  "@rewardReady": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "holdForParents": "לחיצה ארוכה למצב הורים",
+  "@holdForParents": {
+    "description": "Gear tooltip."
+  },
+  "exitParentMode": "יציאה ממצב הורים",
+  "gateTitle": "רק להורים",
+  "gateQuestion": "{a} × {b} = ?",
+  "@gateQuestion": {
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "gateTryAgain": "לא בדיוק. הנה שאלה אחרת.",
+  "gateConfirm": "אישור",
+  "gateBackspace": "מחיקת ספרה",
+  "cancel": "ביטול",
+  "save": "שמירה",
+  "delete": "מחיקה",
+  "parentRoutines": "שגרות",
+  "parentTasks": "ספריית משימות",
+  "parentRewards": "פרסים",
+  "parentSummary": "סיכום יומי",
+  "parentSettings": "הגדרות",
+  "routineStartTime": "שעת התחלה",
+  "routineDays": "ימים",
+  "dayShort": "{day, select, sun{א׳} mon{ב׳} tue{ג׳} wed{ד׳} thu{ה׳} fri{ו׳} sat{ש׳} other{}}",
+  "@dayShort": {
+    "description": "Short weekday name.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "routineReminder": "תזכורת",
+  "routineReminderLater": "התזכורות יתחילו לפעול בשלב הבא",
+  "routineTasks": "משימות",
+  "routineEmpty": "אין עדיין משימות בשגרה",
+  "addTask": "הוספת משימה",
+  "newTask": "משימה חדשה",
+  "removeFromRoutine": "הסרה מהשגרה",
+  "dragToReorder": "גרירה לשינוי הסדר",
+  "minutesShort": "{count, plural, =1{דקה} other{{count} דק׳}}",
+  "@minutesShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "builtIn": "מובנית",
+  "taskEditTitle": "עריכת משימה",
+  "taskNameHe": "שם בעברית",
+  "taskNameEs": "שם בספרדית (לא חובה)",
+  "taskNameEn": "שם באנגלית (לא חובה)",
+  "taskNameRequired": "צריך שם בעברית",
+  "taskPicture": "תמונה",
+  "chooseEmoji": "אימוג׳י",
+  "takePhoto": "מצלמה",
+  "choosePhoto": "גלריה",
+  "removePhoto": "הסרת התמונה",
+  "taskVoice": "הקלטה",
+  "recordVoice": "הקלטה",
+  "stopRecording": "עצירה",
+  "playRecording": "השמעה",
+  "deleteRecording": "מחיקת ההקלטה",
+  "recordingNow": "מקליט… {seconds} שנ׳",
+  "@recordingNow": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "noRecordingHint": "בלי הקלטה, הטלפון יקריא את שם המשימה",
+  "micDenied": "אין הרשאה למיקרופון. אפשר לאשר בהגדרות הטלפון.",
+  "taskMinutes": "זמן מטרה",
+  "deleteTaskConfirm": "למחוק את המשימה \"{name}\"? היא תוסר מכל השגרות.",
+  "@deleteTaskConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "discardChanges": "לצאת בלי לשמור?",
+  "discard": "יציאה בלי שמירה",
+  "keepEditing": "המשך עריכה",
+  "rewardsEmpty": "אין עדיין פרסים. אפשר להוסיף פרס עם הכפתור למטה.",
+  "addReward": "הוספת פרס",
+  "rewardNew": "פרס חדש",
+  "rewardEdit": "עריכת פרס",
+  "rewardName": "שם הפרס",
+  "rewardNameRequired": "צריך שם לפרס",
+  "rewardCost": "מחיר בכוכבים",
+  "redeem": "מימוש",
+  "redeemConfirmTitle": "לממש את \"{name}\"?",
+  "@redeemConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "redeemConfirmBody": "זה הרגע לעשות את זה ביחד! ירדו {cost} כוכבים.",
+  "@redeemConfirmBody": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "redeemDone": "מומש! 🎉",
+  "rewardStarsHave": "{have} מתוך {cost} ⭐",
+  "@rewardStarsHave": {
+    "placeholders": {
+      "have": {
+        "type": "int"
+      },
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "redeemedSection": "מומשו",
+  "redeemedOn": "מומש ב־{date}",
+  "@redeemedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "offerAgain": "להציע שוב",
+  "deleteRewardConfirm": "למחוק את הפרס \"{name}\"?",
+  "@deleteRewardConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "starBalance": "יתרה: {count} ⭐",
+  "@starBalance": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "today": "היום",
+  "previousDay": "יום קודם",
+  "nextDay": "יום הבא",
+  "summaryStars": "כוכבים שנאספו: {count}",
+  "@summaryStars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryEmpty": "אין פעילות ביום הזה",
+  "summaryFinished": "{start}–{end} · {duration}",
+  "@summaryFinished": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryInProgress": "התחילה ב־{start} · {done} מתוך {total}",
+  "@summaryInProgress": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryTaken": "{taken} (יעד {target})",
+  "@summaryTaken": {
+    "placeholders": {
+      "taken": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryNotDone": "לא סומנה",
+  "lessThanMinute": "פחות מדקה",
+  "childName": "שם הילד/ה",
+  "childGender": "מגדר (לנוסח הפנייה)",
+  "genderFemale": "בת",
+  "genderMale": "בן",
+  "mascotName": "שם הדמות",
+  "saved": "נשמר"
 }
