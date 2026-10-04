@@ -133,7 +133,7 @@ class RoutineRepository {
     required Gender gender,
     required String mascotName,
   }) async {
-    final child = await watchChild().first;
+    final child = await (db.select(db.children)..limit(1)).getSingle();
     await (db.update(db.children)..where((c) => c.id.equals(child.id))).write(
       ChildrenCompanion(
         name: Value(name.trim()),
@@ -142,6 +142,10 @@ class RoutineRepository {
       ),
     );
   }
+
+  Future<Routine> getRoutine(RoutineType type) => (db.select(
+    db.routines,
+  )..where((r) => r.type.equalsValue(type))).getSingle();
 
   Stream<Routine> watchRoutine(RoutineType type) => (db.select(
     db.routines,

@@ -137,10 +137,11 @@ class _RoutineEditorScreenState extends ConsumerState<RoutineEditorScreen> {
     final lang = ref.read(childProvider).value?.language ?? AppLanguage.he;
     final inRoutine = {for (final (_, t) in items) t.id};
     // The Jewish pack is placed by its own switch (M3), not from here.
-    final available = (ref.read(libraryProvider).value ?? const <Task>[])
+    final available = (await ref.read(taskRepositoryProvider).getLibrary())
         .where((t) => !inRoutine.contains(t.id) && t.pack != TaskPack.jewish)
         .toList();
 
+    if (!mounted) return;
     final picked = await showModalBottomSheet<int>(
       context: context,
       isScrollControlled: true,

@@ -195,11 +195,15 @@ class _TaskRow extends StatelessWidget {
           PictureCircle(size: 32, photoPath: task.photoPath, emoji: task.emoji),
           const SizedBox(width: 8),
           Expanded(child: Text(task.nameIn(lang), style: t.bodyLarge)),
-          Text(
-            taken == null
-                ? l.summaryNotDone
-                : l.summaryTaken(minutes(taken), minutes(entry.target)),
-            style: t.bodyMedium,
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              taken == null
+                  ? l.summaryNotDone
+                  : l.summaryTaken(minutes(taken), minutes(entry.target)),
+              style: t.bodyMedium,
+              textAlign: TextAlign.end,
+            ),
           ),
         ],
       ),

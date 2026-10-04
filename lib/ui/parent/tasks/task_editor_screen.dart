@@ -38,6 +38,7 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
   bool _loading = true;
   bool _dirty = false;
   bool _saved = false;
+  bool _leaving = false;
   String _emoji = '⭐';
   int _minutes = 3;
   late MediaDraft _draft;
@@ -168,10 +169,7 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
       final id = await tasks.createTask(changes);
       final type = widget.addToRoutine;
       if (type != null) {
-        final routine = await ref
-            .read(repositoryProvider)
-            .watchRoutine(type)
-            .first;
+        final routine = await ref.read(repositoryProvider).getRoutine(type);
         await ref.read(repositoryProvider).addToRoutine(routine.id, id);
       }
     } else {
@@ -206,7 +204,7 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
     }
 
     return PopScope(
-      canPop: !(_dirty || _draft.changed),
+      canPop: _leaving || !(_dirty || _draft.changed),
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         final leave = await confirm(
@@ -216,9 +214,9 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
           cancelLabel: l.keepEditing,
         );
         if (leave && context.mounted) {
-          setState(() => _dirty = false);
-          await _draft.discard();
-          if (context.mounted) context.pop();
+          // dispose() deletes the unsaved media.
+          setState(() => _leaving = true);
+          context.pop();
         }
       },
       child: ParentScaffold(

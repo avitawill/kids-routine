@@ -49,88 +49,96 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsetsDirectional.all(24),
-          child: Column(
-            children: [
-              const Spacer(),
-              const Stack(
-                alignment: Alignment.center,
-                children: [
-                  StarBurst(size: 320),
-                  Mascot(mood: MascotMood.cheer, size: 200),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                l.celebrationTitle(genderKey(child?.gender)),
-                style: t.displaySmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l.celebrationRoutineDone(widget.type.label(l)),
-                style: t.titleLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              if (earned > 0)
-                Text(
-                  l.starsEarned(earned),
-                  style: t.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
-              const SizedBox(height: 8),
-              Text(
-                l.starsTotal(total),
-                style: t.titleLarge,
-                textAlign: TextAlign.center,
-              ),
-              if (reward != null) ...[
-                const SizedBox(height: 20),
-                Text(
-                  reward.isReady
-                      ? l.rewardReady(reward.goal.name)
-                      : l.rewardToGo(reward.starsToGo, reward.goal.name),
-                  style: t.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: LinearProgressIndicator(
-                      value: reward.fraction,
-                      minHeight: 18,
-                      color: AppColors.star,
-                      backgroundColor: AppColors.surface,
+        // Scrolls only when it must (small phone, large system text).
+        child: LayoutBuilder(
+          builder: (context, box) => SingleChildScrollView(
+            padding: const EdgeInsetsDirectional.all(24),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: box.maxHeight - 48),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    const Spacer(),
+                    const Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        StarBurst(size: 280),
+                        Mascot(mood: MascotMood.cheer, size: 180),
+                      ],
                     ),
-                  ),
-                ),
-              ],
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                height: 72,
-                child: FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
+                    const SizedBox(height: 16),
+                    Text(
+                      l.celebrationTitle(genderKey(child?.gender)),
+                      style: t.displaySmall,
+                      textAlign: TextAlign.center,
                     ),
-                    textStyle: const TextStyle(
-                      fontFamily: 'Fredoka',
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
+                    const SizedBox(height: 8),
+                    Text(
+                      l.celebrationRoutineDone(widget.type.label(l)),
+                      style: t.titleLarge,
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  onPressed: () => context.go('/'),
-                  icon: const Icon(Icons.home_rounded, size: 32),
-                  label: Text(l.goHome),
+                    const SizedBox(height: 16),
+                    if (earned > 0)
+                      Text(
+                        l.starsEarned(earned),
+                        style: t.headlineMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l.starsTotal(total),
+                      style: t.titleLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    if (reward != null) ...[
+                      const SizedBox(height: 20),
+                      Text(
+                        reward.isReady
+                            ? l.rewardReady(reward.goal.name)
+                            : l.rewardToGo(reward.starsToGo, reward.goal.name),
+                        style: t.titleMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: LinearProgressIndicator(
+                            value: reward.fraction,
+                            minHeight: 18,
+                            color: AppColors.star,
+                            backgroundColor: AppColors.surface,
+                          ),
+                        ),
+                      ),
+                    ],
+                    const Spacer(),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 72,
+                      child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          textStyle: const TextStyle(
+                            fontFamily: 'Fredoka',
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        onPressed: () => context.go('/'),
+                        icon: const Icon(Icons.home_rounded, size: 32),
+                        label: Text(l.goHome),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

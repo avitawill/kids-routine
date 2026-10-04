@@ -28,6 +28,7 @@ class _RewardEditorScreenState extends ConsumerState<RewardEditorScreen> {
   bool _loading = true;
   bool _dirty = false;
   bool _saved = false;
+  bool _leaving = false;
   late MediaDraft _draft;
 
   @override
@@ -124,7 +125,7 @@ class _RewardEditorScreenState extends ConsumerState<RewardEditorScreen> {
     }
 
     return PopScope(
-      canPop: !(_dirty || _draft.changed),
+      canPop: _leaving || !(_dirty || _draft.changed),
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         final leave = await confirm(
@@ -134,9 +135,9 @@ class _RewardEditorScreenState extends ConsumerState<RewardEditorScreen> {
           cancelLabel: l.keepEditing,
         );
         if (leave && context.mounted) {
-          setState(() => _dirty = false);
-          await _draft.discard();
-          if (context.mounted) context.pop();
+          // dispose() deletes the unsaved media.
+          setState(() => _leaving = true);
+          context.pop();
         }
       },
       child: ParentScaffold(

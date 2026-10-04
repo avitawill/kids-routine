@@ -10,12 +10,15 @@ class TaskRepository {
   final MediaStore media;
 
   /// All tasks: built-in first (seed order), then custom ones.
-  Stream<List<Task>> watchLibrary() =>
-      (db.select(db.tasks)..orderBy([
-            (t) => OrderingTerm.desc(t.isBuiltIn),
-            (t) => OrderingTerm.asc(t.id),
-          ]))
-          .watch();
+  Stream<List<Task>> watchLibrary() => _library().watch();
+
+  Future<List<Task>> getLibrary() => _library().get();
+
+  SimpleSelectStatement<$TasksTable, Task> _library() => db.select(db.tasks)
+    ..orderBy([
+      (t) => OrderingTerm.desc(t.isBuiltIn),
+      (t) => OrderingTerm.asc(t.id),
+    ]);
 
   Future<Task?> getTask(int id) =>
       (db.select(db.tasks)..where((t) => t.id.equals(id))).getSingleOrNull();
