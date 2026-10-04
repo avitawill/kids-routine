@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../data/db/database.dart';
 import '../data/task_names.dart';
+import 'media_store.dart';
 
 /// Every sound the child hears. Abstract so tests can swap in a silent fake.
 abstract class AudioCues {
@@ -16,11 +15,18 @@ abstract class AudioCues {
   Future<void> playStar();
   Future<void> playTimeUp();
   Future<void> playCelebration();
+
+  /// Plays a stored recording (parent mode preview).
+  Future<void> playFile(String relativePath);
+
   Future<void> stop();
   Future<void> dispose();
 }
 
 class AudioService implements AudioCues {
+  AudioService(this.media);
+
+  final MediaStore media;
   final _effects = AudioPlayer();
   final _voice = AudioPlayer();
   final _tts = FlutterTts();
@@ -38,10 +44,10 @@ class AudioService implements AudioCues {
     await _play(_effects, _start);
     if (gen != _generation) return;
 
-    final audioPath = task.audioPath;
-    if (audioPath != null && File(audioPath).existsSync()) {
+    final recording = media.existing(task.audioPath);
+    if (recording != null) {
       await _guard(() async {
-        await _voice.setFilePath(audioPath);
+        await _voice.setFilePath(recording.path);
         await _voice.play();
       });
     } else {
@@ -57,6 +63,18 @@ class AudioService implements AudioCues {
 
   @override
   Future<void> playCelebration() => _play(_effects, _star);
+
+  @override
+  Future<void> playFile(String relativePath) async {
+    _generation++;
+    await _stopVoice();
+    final file = media.existing(relativePath);
+    if (file == null) return;
+    await _guard(() async {
+      await _voice.setFilePath(file.path);
+      await _voice.play();
+    });
+  }
 
   @override
   Future<void> stop() async {

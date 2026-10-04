@@ -125,4 +125,104 @@ class RoutineRepository {
       db.starLedger,
     )..addColumns([sum])).map((row) => row.read(sum) ?? 0).watchSingle();
   }
+
+  // ---- Parent mode: editing ----
+
+  Future<void> updateChild({
+    required String name,
+    required Gender gender,
+    required String mascotName,
+  }) async {
+    final child = await watchChild().first;
+    await (db.update(db.children)..where((c) => c.id.equals(child.id))).write(
+      ChildrenCompanion(
+        name: Value(name.trim()),
+        gender: Value(gender),
+        mascotName: Value(mascotName.trim()),
+      ),
+    );
+  }
+
+  Stream<Routine> watchRoutine(RoutineType type) => (db.select(
+    db.routines,
+  )..where((r) => r.type.equalsValue(type))).watchSingle();
+
+  Future<void> updateRoutine(
+    int routineId, {
+    int? startMinutes,
+    int? daysOfWeek,
+    bool? reminderEnabled,
+  }) => (db.update(db.routines)..where((r) => r.id.equals(routineId))).write(
+    RoutinesCompanion(
+      startMinutes: Value.absentIfNull(startMinutes),
+      daysOfWeek: Value.absentIfNull(daysOfWeek),
+      reminderEnabled: Value.absentIfNull(reminderEnabled),
+    ),
+  );
+
+  /// The routine's tasks in order, with the link rows (needed to reorder and
+  /// remove).
+  Stream<List<(RoutineTask, Task)>> watchRoutineItems(int routineId) {
+    final query =
+        db.select(db.routineTasks).join([
+            innerJoin(db.tasks, db.tasks.id.equalsExp(db.routineTasks.taskId)),
+          ])
+          ..where(db.routineTasks.routineId.equals(routineId))
+          ..orderBy([OrderingTerm.asc(db.routineTasks.position)]);
+    return query.watch().map(
+      (rows) => [
+        for (final r in rows)
+          (r.readTable(db.routineTasks), r.readTable(db.tasks)),
+      ],
+    );
+  }
+
+  /// Rewrites positions 0..n-1 in the given order of RoutineTask ids.
+  Future<void> reorder(int routineId, List<int> routineTaskIds) =>
+      db.transaction(() async {
+        for (final (i, id) in routineTaskIds.indexed) {
+          await (db.update(db.routineTasks)..where(
+                (rt) => rt.id.equals(id) & rt.routineId.equals(routineId),
+              ))
+              .write(RoutineTasksCompanion(position: Value(i)));
+        }
+      });
+
+  /// Appends [taskId] to the end of the routine.
+  Future<void> addToRoutine(int routineId, int taskId) =>
+      db.transaction(() async {
+        final max = db.routineTasks.position.max();
+        final last =
+            await (db.selectOnly(db.routineTasks)
+                  ..addColumns([max])
+                  ..where(db.routineTasks.routineId.equals(routineId)))
+                .map((r) => r.read(max))
+                .getSingle();
+        await db
+            .into(db.routineTasks)
+            .insert(
+              RoutineTasksCompanion.insert(
+                routineId: routineId,
+                taskId: taskId,
+                position: (last ?? -1) + 1,
+              ),
+            );
+      });
+
+  /// Removes one task from a routine (the task itself stays in the library).
+  Future<void> removeFromRoutine(int routineTaskId) => db.transaction(() async {
+    final rt = await (db.select(
+      db.routineTasks,
+    )..where((r) => r.id.equals(routineTaskId))).getSingleOrNull();
+    if (rt == null) return;
+    await (db.delete(
+      db.routineTasks,
+    )..where((r) => r.id.equals(routineTaskId))).go();
+    final rest =
+        await (db.select(db.routineTasks)
+              ..where((r) => r.routineId.equals(rt.routineId))
+              ..orderBy([(r) => OrderingTerm.asc(r.position)]))
+            .get();
+    await reorder(rt.routineId, [for (final r in rest) r.id]);
+  });
 }

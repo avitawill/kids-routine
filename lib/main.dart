@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'services/media_store.dart';
+import 'state/providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,5 +19,11 @@ Future<void> main() async {
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
-  runApp(const ProviderScope(child: KidsRoutineApp()));
+  final media = await MediaStore.open();
+  runApp(
+    ProviderScope(
+      overrides: [mediaStoreProvider.overrideWithValue(media)],
+      child: const KidsRoutineApp(),
+    ),
+  );
 }

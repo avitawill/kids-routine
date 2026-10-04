@@ -27,6 +27,7 @@ void main() {
       ProviderScope(
         overrides: [
           databaseProvider.overrideWithValue(db),
+          mediaStoreProvider.overrideWithValue(makeTestMedia()),
           audioProvider.overrideWithValue(audio),
           clockProvider.overrideWithValue(clock.call),
         ],
