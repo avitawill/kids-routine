@@ -15,8 +15,7 @@ import '../../widgets/picture_circle.dart';
 import '../parent_scaffold.dart';
 
 final _dayProvider = StreamProvider.family<DaySummary, String>((ref, date) {
-  final day = DateTime.parse(date);
-  return ref.watch(summaryRepositoryProvider).watchDay(day);
+  return ref.watch(summaryRepositoryProvider).watchDay(DateTime.parse(date));
 });
 
 /// What was done today (or another day) and how long each task took. Shown
@@ -58,7 +57,9 @@ class _DailySummaryScreenState extends ConsumerState<DailySummaryScreen> {
                   tooltip: l.previousDay,
                   icon: const Icon(Icons.arrow_back_rounded),
                   onPressed: () => setState(
-                    () => _day = _day.subtract(const Duration(days: 1)),
+                    () => _day = _dateOnly(
+                      _day.subtract(const Duration(hours: 12)),
+                    ),
                   ),
                 ),
                 Expanded(
@@ -74,7 +75,9 @@ class _DailySummaryScreenState extends ConsumerState<DailySummaryScreen> {
                   onPressed: isToday
                       ? null
                       : () => setState(
-                          () => _day = _day.add(const Duration(days: 1)),
+                          () => _day = _dateOnly(
+                            _day.add(const Duration(hours: 36)),
+                          ),
                         ),
                 ),
               ],

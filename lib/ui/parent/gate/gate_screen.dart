@@ -67,52 +67,54 @@ class _GateScreenState extends ConsumerState<GateScreen> {
       ),
       body: SafeArea(
         child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 360),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Math reads left-to-right in every language.
-                  Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: Text(
-                      l.gateQuestion(_question.a, _question.b),
-                      style: t.displaySmall,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: 160,
-                    height: 64,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      _entry,
-                      style: t.displaySmall,
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 360),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Math reads left-to-right in every language.
+                    Directionality(
                       textDirection: TextDirection.ltr,
+                      child: Text(
+                        l.gateQuestion(_question.a, _question.b),
+                        style: t.displaySmall,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 32,
-                    child: _wrong
-                        ? Center(
-                            child: Text(l.gateTryAgain, style: t.bodyMedium),
-                          )
-                        : null,
-                  ),
-                  _NumberPad(
-                    onDigit: _digit,
-                    onBackspace: _backspace,
-                    onSubmit: _submit,
-                    backspaceLabel: l.gateBackspace,
-                    submitLabel: l.gateConfirm,
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    Container(
+                      width: 160,
+                      height: 64,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        _entry,
+                        style: t.displaySmall,
+                        textDirection: TextDirection.ltr,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 32,
+                      child: _wrong
+                          ? Center(
+                              child: Text(l.gateTryAgain, style: t.bodyMedium),
+                            )
+                          : null,
+                    ),
+                    _NumberPad(
+                      onDigit: _digit,
+                      onBackspace: _backspace,
+                      onSubmit: _submit,
+                      backspaceLabel: l.gateBackspace,
+                      submitLabel: l.gateConfirm,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

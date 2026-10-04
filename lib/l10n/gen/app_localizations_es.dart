@@ -263,9 +263,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get taskNameRequired => 'צריך שם בעברית';
 
   @override
-  String get taskPicture => 'תמונה';
-
-  @override
   String get chooseEmoji => 'אימוג׳י';
 
   @override

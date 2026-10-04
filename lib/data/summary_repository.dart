@@ -57,17 +57,18 @@ class SummaryRepository {
       }
 
       final count = db.routineTasks.id.count();
+      final countRows =
+          await (db.selectOnly(db.routineTasks).join([
+                  innerJoin(
+                    db.routines,
+                    db.routines.id.equalsExp(db.routineTasks.routineId),
+                  ),
+                ])
+                ..addColumns([db.routines.type, count])
+                ..groupBy([db.routines.type]))
+              .get();
       final counts = {
-        for (final r
-            in await (db.selectOnly(db.routineTasks).join([
-                    innerJoin(
-                      db.routines,
-                      db.routines.id.equalsExp(db.routineTasks.routineId),
-                    ),
-                  ])
-                  ..addColumns([db.routines.type, count])
-                  ..groupBy([db.routines.type]))
-                .get())
+        for (final r in countRows)
           RoutineType.values.byName(r.read(db.routines.type)!):
               r.read(count) ?? 0,
       };

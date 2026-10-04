@@ -21,14 +21,19 @@ class GearHoldButton extends StatefulWidget {
 
 class _GearHoldButtonState extends State<GearHoldButton>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _hold =
-      AnimationController(vsync: this, duration: gateHoldDuration)
-        ..addStatusListener((s) {
-          if (s == AnimationStatus.completed) {
-            _hold.reset();
-            widget.onHeld();
-          }
-        });
+  late final AnimationController _hold;
+
+  @override
+  void initState() {
+    super.initState();
+    _hold = AnimationController(vsync: this, duration: gateHoldDuration)
+      ..addStatusListener((s) {
+        if (s == AnimationStatus.completed) {
+          _hold.reset();
+          widget.onHeld();
+        }
+      });
+  }
 
   @override
   void dispose() {
@@ -38,44 +43,40 @@ class _GearHoldButtonState extends State<GearHoldButton>
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: widget.tooltip,
-      triggerMode: TooltipTriggerMode.manual,
-      child: Semantics(
-        button: true,
-        label: widget.tooltip,
-        // Screen readers can't "hold"; their long-press action still opens it.
-        onLongPress: widget.onHeld,
-        child: Listener(
-          behavior: HitTestBehavior.opaque,
-          onPointerDown: (_) => _hold.forward(from: 0),
-          onPointerUp: (_) => _hold.reset(),
-          onPointerCancel: (_) => _hold.reset(),
-          child: SizedBox.square(
-            dimension: 52,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                AnimatedBuilder(
-                  animation: _hold,
-                  builder: (context, _) => _hold.value == 0
-                      ? const SizedBox.shrink()
-                      : SizedBox.square(
-                          dimension: 40,
-                          child: CircularProgressIndicator(
-                            value: _hold.value,
-                            strokeWidth: 3,
-                            color: AppColors.primary,
-                          ),
+    return Semantics(
+      button: true,
+      label: widget.tooltip,
+      // Screen readers can't "hold"; their long-press action still opens it.
+      onLongPress: widget.onHeld,
+      child: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: (_) => _hold.forward(from: 0),
+        onPointerUp: (_) => _hold.reset(),
+        onPointerCancel: (_) => _hold.reset(),
+        child: SizedBox.square(
+          dimension: 52,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              AnimatedBuilder(
+                animation: _hold,
+                builder: (context, _) => _hold.value == 0
+                    ? const SizedBox.shrink()
+                    : SizedBox.square(
+                        dimension: 40,
+                        child: CircularProgressIndicator(
+                          value: _hold.value,
+                          strokeWidth: 3,
+                          color: AppColors.primary,
                         ),
-                ),
-                const Icon(
-                  Icons.settings_rounded,
-                  color: AppColors.inkSoft,
-                  size: 26,
-                ),
-              ],
-            ),
+                      ),
+              ),
+              const Icon(
+                Icons.settings_rounded,
+                color: AppColors.inkSoft,
+                size: 26,
+              ),
+            ],
           ),
         ),
       ),

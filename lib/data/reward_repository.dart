@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 
 import '../domain/date_key.dart';
-import '../domain/reward_progress.dart';
 import '../domain/star_ledger.dart';
 import '../services/media_store.dart';
 import 'db/database.dart';
@@ -21,14 +20,6 @@ class RewardRepository {
             (r) => OrderingTerm.asc(r.id),
           ]))
           .watch();
-
-  Stream<List<RewardGoal>> watchGoals() =>
-      (db.select(db.rewards)..where((r) => r.redeemedAt.isNull())).watch().map(
-        (rows) => [
-          for (final r in rows)
-            RewardGoal(id: r.id, name: r.name, cost: r.starCost),
-        ],
-      );
 
   Future<Reward?> getReward(int id) =>
       (db.select(db.rewards)..where((r) => r.id.equals(id))).getSingleOrNull();

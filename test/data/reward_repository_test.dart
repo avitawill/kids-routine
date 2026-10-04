@@ -29,39 +29,33 @@ void main() {
   });
   tearDown(() => db.close());
 
-  test(
-    'redeem spends exactly the cost as one negative redemption entry',
-    () async {
-      await earn(5);
-      final id = await rewards.createReward(
-        RewardsCompanion.insert(name: 'גלידה', starCost: 3),
-      );
-      expect(await rewards.redeem(id, now), isTrue);
-      expect(await routines.watchStarBalance().first, 2);
+  test('redeem spends exactly the cost as one negative entry', () async {
+    await earn(5);
+    final id = await rewards.createReward(
+      RewardsCompanion.insert(name: 'גלידה', starCost: 3),
+    );
+    expect(await rewards.redeem(id, now), isTrue);
+    expect(await routines.watchStarBalance().first, 2);
 
-      final negatives = await (db.select(
-        db.starLedger,
-      )..where((e) => e.delta.isSmallerThanValue(0))).get();
-      expect(negatives, hasLength(1));
-      expect(negatives.single.delta, -3);
-      expect(negatives.single.reason, StarReason.redemption);
-      expect(negatives.single.refId, id);
-      expect((await rewards.getReward(id))!.redeemedAt, now);
-    },
-  );
+    final negatives = await (db.select(
+      db.starLedger,
+    )..where((e) => e.delta.isSmallerThanValue(0))).get();
+    expect(negatives, hasLength(1));
+    expect(negatives.single.delta, -3);
+    expect(negatives.single.reason, StarReason.redemption);
+    expect(negatives.single.refId, id);
+    expect((await rewards.getReward(id))!.redeemedAt, now);
+  });
 
-  test(
-    'not enough stars: nothing changes, balance never goes below zero',
-    () async {
-      await earn(2);
-      final id = await rewards.createReward(
-        RewardsCompanion.insert(name: 'אופניים', starCost: 3),
-      );
-      expect(await rewards.redeem(id, now), isFalse);
-      expect(await routines.watchStarBalance().first, 2);
-      expect((await rewards.getReward(id))!.redeemedAt, isNull);
-    },
-  );
+  test('not enough stars: nothing changes, never below zero', () async {
+    await earn(2);
+    final id = await rewards.createReward(
+      RewardsCompanion.insert(name: 'אופניים', starCost: 3),
+    );
+    expect(await rewards.redeem(id, now), isFalse);
+    expect(await routines.watchStarBalance().first, 2);
+    expect((await rewards.getReward(id))!.redeemedAt, isNull);
+  });
 
   test('a reward is redeemed only once', () async {
     await earn(10);

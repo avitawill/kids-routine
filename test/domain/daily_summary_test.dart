@@ -4,21 +4,19 @@ import 'package:kids_routine/domain/enums.dart';
 
 void main() {
   final t0 = DateTime(2026, 10, 5, 7, 0);
-  DateTime at(int min, [int sec = 0]) =>
-      t0.add(Duration(minutes: min, seconds: sec));
+  DateTime at(int min) => t0.add(Duration(minutes: min));
 
   TaskLogEntry log(
     RoutineType r,
     int id,
     int pos,
     DateTime start,
-    DateTime? done, {
-    int target = 3,
-  }) => TaskLogEntry(
+    DateTime? done,
+  ) => TaskLogEntry(
     routine: r,
     taskId: id,
     position: pos,
-    targetMinutes: target,
+    targetMinutes: 3,
     startedAt: start,
     completedAt: done,
   );
@@ -32,7 +30,6 @@ void main() {
       {RoutineType.morning: 2},
     );
 
-    expect(s, hasLength(1));
     final m = s.single;
     expect(m.tasks.map((t) => t.taskId), [1, 2]); // routine order
     expect(m.isComplete, isTrue);

@@ -15,14 +15,14 @@ class KidsRoutineApp extends ConsumerStatefulWidget {
 
 class _KidsRoutineAppState extends ConsumerState<KidsRoutineApp> {
   // Parent mode never stays open in the background.
-  late final _lifecycle = AppLifecycleListener(
-    onHide: () => ref.read(parentSessionProvider.notifier).onAppHidden(),
-  );
+  late final AppLifecycleListener _lifecycle;
 
   @override
   void initState() {
     super.initState();
-    _lifecycle; // start listening
+    _lifecycle = AppLifecycleListener(
+      onHide: () => ref.read(parentSessionProvider.notifier).onAppHidden(),
+    );
   }
 
   @override

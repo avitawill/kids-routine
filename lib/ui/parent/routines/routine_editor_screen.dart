@@ -190,6 +190,7 @@ class _Settings extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    final t = Theme.of(context).textTheme;
     final repo = ref.read(repositoryProvider);
     final start = TimeOfDay(
       hour: routine.startMinutes ~/ 60,
@@ -205,7 +206,7 @@ class _Settings extends ConsumerWidget {
           trailing: Text(
             MaterialLocalizations.of(context)
                 .formatTimeOfDay(start, alwaysUse24HourFormat: true),
-            style: Theme.of(context).textTheme.titleMedium,
+            style: t.titleMedium,
           ),
           onTap: () async {
             final picked = await showTimePicker(
@@ -227,10 +228,7 @@ class _Settings extends ConsumerWidget {
         ),
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 16, 4),
-          child: Text(
-            l.routineDays,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          child: Text(l.routineDays, style: t.titleMedium),
         ),
         Padding(
           padding: const EdgeInsetsDirectional.symmetric(horizontal: 12),
@@ -264,10 +262,7 @@ class _Settings extends ConsumerWidget {
         const Divider(),
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 4),
-          child: Text(
-            l.routineTasks,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          child: Text(l.routineTasks, style: t.titleMedium),
         ),
       ],
     );

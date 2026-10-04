@@ -91,11 +91,10 @@ class NumberStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
     return Row(
       children: [
-        Expanded(
-          child: Text(label, style: Theme.of(context).textTheme.titleMedium),
-        ),
+        Expanded(child: Text(label, style: t.titleMedium)),
         IconButton.filledTonal(
           onPressed: value - step >= min ? () => onChanged(value - step) : null,
           icon: const Icon(Icons.remove_rounded),
@@ -105,7 +104,7 @@ class NumberStepper extends StatelessWidget {
           child: Text(
             display,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge,
+            style: t.titleLarge,
           ),
         ),
         IconButton.filledTonal(

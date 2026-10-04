@@ -34,6 +34,9 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
   final _es = TextEditingController();
   final _en = TextEditingController();
 
+  // Read up front: ref can't be used in dispose().
+  late final VoiceRecorder _recorder;
+
   Task? _task;
   bool _loading = true;
   bool _dirty = false;
@@ -46,9 +49,6 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
   Timer? _recordTimer;
   int _recordSeconds = 0;
   String? _recording; // relative path while recording
-
-  // Read up front: ref can't be used in dispose().
-  late final VoiceRecorder _recorder;
 
   @override
   void initState() {
@@ -98,10 +98,9 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
   }
 
   Future<void> _pickPhoto(ImageSource source) async {
-    final session = ref.read(parentSessionProvider.notifier);
-    final picked = await session.whileOutside(
-      () => ref.read(photoPickerProvider)(source),
-    );
+    final picked = await ref
+        .read(parentSessionProvider.notifier)
+        .whileOutside(() => ref.read(photoPickerProvider)(source));
     if (picked == null || !mounted) return;
     final rel = await ref.read(mediaStoreProvider).importPhoto(picked);
     _draft.adopt(rel);
@@ -165,12 +164,13 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
     );
 
     final tasks = ref.read(taskRepositoryProvider);
+    final routines = ref.read(repositoryProvider);
     if (_task == null) {
       final id = await tasks.createTask(changes);
       final type = widget.addToRoutine;
       if (type != null) {
-        final routine = await ref.read(repositoryProvider).getRoutine(type);
-        await ref.read(repositoryProvider).addToRoutine(routine.id, id);
+        final routine = await routines.getRoutine(type);
+        await routines.addToRoutine(routine.id, id);
       }
     } else {
       await tasks.updateTask(_task!.id, changes);

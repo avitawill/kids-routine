@@ -17,11 +17,16 @@ void main() {
       t.builtInKey ?? t.nameHe,
   ];
 
+  Future<List<int>> positions() async => [
+    for (final (rt, _) in await repo.watchRoutineItems(morning.id).first)
+      rt.position,
+  ];
+
   setUp(() async {
     db = makeTestDb();
     repo = RoutineRepository(db);
     tasks = TaskRepository(db, makeTestMedia());
-    morning = await repo.watchRoutine(RoutineType.morning).first;
+    morning = await repo.getRoutine(RoutineType.morning);
   });
   tearDown(() => db.close());
 
@@ -30,11 +35,7 @@ void main() {
     final ids = [for (final (rt, _) in items) rt.id];
     await repo.reorder(morning.id, [ids[2], ids[0], ids[1], ...ids.skip(3)]);
     expect((await keys()).take(3), ['brush_teeth', 'wake_up', 'toilet']);
-    final positions = [
-      for (final (rt, _) in await repo.watchRoutineItems(morning.id).first)
-        rt.position,
-    ];
-    expect(positions, List.generate(10, (i) => i));
+    expect(await positions(), List.generate(10, (i) => i));
   });
 
   test(
@@ -43,18 +44,14 @@ void main() {
       final items = await repo.watchRoutineItems(morning.id).first;
       await repo.removeFromRoutine(items[1].$1.id); // toilet
       expect(await keys(), isNot(contains('toilet')));
-      final positions = [
-        for (final (rt, _) in await repo.watchRoutineItems(morning.id).first)
-          rt.position,
-      ];
-      expect(positions, List.generate(9, (i) => i));
+      expect(await positions(), List.generate(9, (i) => i));
       final library = await tasks.watchLibrary().first;
       expect(library.map((t) => t.builtInKey), contains('toilet'));
     },
   );
 
   test(
-    'add appends a custom task at the end; it then shows in the session',
+    'add appends a custom task at the end; it shows in the session',
     () async {
       final id = await tasks.createTask(
         TasksCompanion.insert(
@@ -65,8 +62,8 @@ void main() {
       );
       await repo.addToRoutine(morning.id, id);
       expect((await keys()).last, 'האכלת הכלב');
-      final created = await tasks.getTask(id);
-      expect(created!.pack, TaskPack.custom); // forced, whatever was passed
+      final created = (await tasks.getTask(id))!;
+      expect(created.pack, TaskPack.custom); // forced, whatever was passed
       expect(created.isBuiltIn, isFalse);
       final s = await repo.watchSession(RoutineType.morning, now).first;
       expect(s.tasks.last.task.id, id);
@@ -91,7 +88,7 @@ void main() {
       daysOfWeek: 0x1f,
       reminderEnabled: true,
     );
-    final r = await repo.watchRoutine(RoutineType.morning).first;
+    final r = await repo.getRoutine(RoutineType.morning);
     expect(r.startMinutes, 405);
     expect(r.daysOfWeek, 0x1f);
     expect(r.reminderEnabled, isTrue);

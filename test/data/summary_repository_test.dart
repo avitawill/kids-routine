@@ -20,27 +20,21 @@ void main() {
 
   test('per-task durations and stars for the day', () async {
     final s = await repo.watchSession(RoutineType.morning, day).first;
-    final [first, second, ...] = s.tasks;
-    await repo.ensureStarted(s.routine.id, first.task.id, day);
-    await repo.completeTask(
-      s.routine.id,
-      first.task.id,
-      day.add(const Duration(minutes: 3)),
-    );
-    await repo.ensureStarted(
-      s.routine.id,
-      second.task.id,
-      day.add(const Duration(minutes: 3)),
-    );
+    final first = s.tasks[0].task;
+    final second = s.tasks[1].task;
+    const three = Duration(minutes: 3);
+    await repo.ensureStarted(s.routine.id, first.id, day);
+    await repo.completeTask(s.routine.id, first.id, day.add(three));
+    await repo.ensureStarted(s.routine.id, second.id, day.add(three));
 
     final d = await summary.watchDay(day).first;
     expect(d.starsEarned, 1);
     final m = d.routines.single;
     expect(m.taskCount, 10);
     expect(m.doneCount, 1);
-    expect(m.tasks.first.taken, const Duration(minutes: 3));
+    expect(m.tasks.first.taken, three);
     expect(m.tasks[1].isDone, isFalse);
-    expect(d.tasks[first.task.id]!.nameHe, 'קימה מהמיטה');
+    expect(d.tasks[first.id]!.nameHe, 'קימה מהמיטה');
   });
 
   test('another day is empty', () async {

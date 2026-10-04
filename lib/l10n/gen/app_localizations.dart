@@ -436,12 +436,6 @@ abstract class AppLocalizations {
   /// **'צריך שם בעברית'**
   String get taskNameRequired;
 
-  /// No description provided for @taskPicture.
-  ///
-  /// In he, this message translates to:
-  /// **'תמונה'**
-  String get taskPicture;
-
   /// No description provided for @chooseEmoji.
   ///
   /// In he, this message translates to:

@@ -43,9 +43,8 @@ class MediaStore {
   Future<String?> duplicate(String? relativePath) async {
     final src = existing(relativePath);
     if (src == null) return null;
-    final kind = relativePath!.split('/').length > 1
-        ? relativePath.split('/')[1]
-        : 'photos';
+    final parts = relativePath!.split('/');
+    final kind = parts.length > 2 ? parts[1] : 'photos';
     final rel = newPath(kind, _extension(relativePath, 'bin'));
     await src.copy(resolve(rel).path);
     return rel;
@@ -57,7 +56,7 @@ class MediaStore {
   }
 
   static String _extension(String path, String fallback) {
-    final name = path.split('/').last;
+    final name = path.split(RegExp(r'[/\\]')).last;
     final dot = name.lastIndexOf('.');
     return dot > 0 && dot < name.length - 1
         ? name.substring(dot + 1).toLowerCase()
