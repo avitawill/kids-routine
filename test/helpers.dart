@@ -51,7 +51,8 @@ class FakeAudio implements AudioCues {
 }
 
 /// A media store in a fresh temp folder.
-MediaStore makeTestMedia() => MediaStore(Directory.systemTemp.createTempSync('kids_routine_test'));
+MediaStore makeTestMedia() =>
+    MediaStore(Directory.systemTemp.createTempSync('kids_routine_test'));
 
 /// Writes a small file instead of using the microphone.
 class FakeRecorder implements VoiceRecorder {

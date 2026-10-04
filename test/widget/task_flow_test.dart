@@ -19,7 +19,11 @@ void main() {
     addTearDown(tester.view.reset);
 
     final db = makeTestDb();
-    addTearDown(db.close);
+    // Unmount first so no live query is left waiting when the DB closes.
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox());
+      await db.close();
+    });
     audio = FakeAudio();
     clock = FakeClock(DateTime(2026, 10, 5, 7, 0));
 
