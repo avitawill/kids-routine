@@ -123,5 +123,10 @@
   "progressRail": "Las tareas de la rutina",
   "languageHe": "עברית",
   "languageEs": "Español",
-  "languageEn": "English"
+  "languageEn": "English",
+  "uncheckTask": "Marcar como no hecha",
+  "uncheckConfirm": "¿Marcar \"{name}\" como no hecha? La estrella ganada se queda.",
+  "resetRoutine": "Reiniciar la rutina de hoy",
+  "resetRoutineConfirm": "¿Empezar la rutina de nuevo hoy? Las estrellas ganadas se quedan.",
+  "summaryTapHint": "Toca una tarea hecha para desmarcarla"
 }

@@ -392,5 +392,17 @@
   "languageEn": "English",
   "@languageHe": {
     "description": "Language names stay in their own language in every locale."
-  }
+  },
+  "uncheckTask": "סימון כלא בוצעה",
+  "uncheckConfirm": "לסמן את \"{name}\" כלא בוצעה? הכוכב שנאסף נשאר.",
+  "@uncheckConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resetRoutine": "איפוס השגרה להיום",
+  "resetRoutineConfirm": "להתחיל את השגרה מחדש להיום? הכוכבים שכבר נאספו נשארים.",
+  "summaryTapHint": "אפשר לגעת במשימה שסומנה כדי לבטל את הסימון"
 }

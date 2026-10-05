@@ -5,7 +5,7 @@ import 'package:kids_routine/data/db/database.dart';
 
 void main() {
   test(
-    'a v1 database (M1/M2 installs) upgrades to v2 keeping its data',
+    'a v1 database (M1/M2 installs) upgrades to v3 keeping its data',
     () async {
       final db = AppDatabase(
         DatabaseConnection(
@@ -32,6 +32,20 @@ void main() {
                 target_minutes INTEGER NOT NULL,
                 pack TEXT NOT NULL,
                 is_built_in INTEGER NOT NULL DEFAULT 0)''');
+              // As M1 created it: started_at NOT NULL (nullable from v3).
+              raw.execute('''
+              CREATE TABLE run_logs (
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL,
+                routine_id INTEGER NOT NULL,
+                task_id INTEGER NOT NULL,
+                started_at INTEGER NOT NULL,
+                completed_at INTEGER NULL,
+                UNIQUE (date, routine_id, task_id))''');
+              raw.execute(
+                'INSERT INTO run_logs (date, routine_id, task_id, started_at, completed_at) '
+                "VALUES ('2026-10-04', 1, 1, 1791100000, 1791100120)",
+              );
               raw.execute(
                 "INSERT INTO children (name, gender, language, mascot_name) "
                 "VALUES ('נועה', 'female', 'he', 'פומי')",
@@ -64,6 +78,14 @@ void main() {
       expect(tasks['brush_teeth']!.nameEn, 'Brush teeth');
       expect(tasks['brush_teeth']!.targetMinutes, 4); // parent's edit kept
       expect(tasks['shoes']!.nameEn, 'Shoes!');
+
+      // v3: history kept, and a paused task can now have no start time.
+      final log = await db.select(db.runLogs).getSingle();
+      expect(log.completedAt, isNotNull);
+      await db
+          .update(db.runLogs)
+          .write(const RunLogsCompanion(startedAt: Value(null)));
+      expect((await db.select(db.runLogs).getSingle()).startedAt, isNull);
     },
   );
 }

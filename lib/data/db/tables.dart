@@ -56,7 +56,8 @@ class RoutineTasks extends Table {
 
 /// One row per task shown to the child on a given day. Created when the task
 /// first appears on screen (its timer starts at [startedAt]) and completed
-/// when Done is tapped.
+/// when Done is tapped. [startedAt] is null while the task is not running:
+/// the child picked another task first, or a parent unchecked it.
 @DataClassName('RunLog')
 class RunLogs extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -67,7 +68,7 @@ class RunLogs extends Table {
       integer().references(Routines, #id, onDelete: KeyAction.cascade)();
   IntColumn get taskId =>
       integer().references(Tasks, #id, onDelete: KeyAction.cascade)();
-  DateTimeColumn get startedAt => dateTime()();
+  DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get completedAt => dateTime().nullable()();
 
   @override

@@ -520,4 +520,22 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get languageEn => 'English';
+
+  @override
+  String get uncheckTask => 'Marcar como no hecha';
+
+  @override
+  String uncheckConfirm(String name) {
+    return '¿Marcar \"$name\" como no hecha? La estrella ganada se queda.';
+  }
+
+  @override
+  String get resetRoutine => 'Reiniciar la rutina de hoy';
+
+  @override
+  String get resetRoutineConfirm =>
+      '¿Empezar la rutina de nuevo hoy? Las estrellas ganadas se quedan.';
+
+  @override
+  String get summaryTapHint => 'Toca una tarea hecha para desmarcarla';
 }

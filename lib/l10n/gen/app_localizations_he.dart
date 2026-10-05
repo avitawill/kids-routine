@@ -515,4 +515,22 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get languageEn => 'English';
+
+  @override
+  String get uncheckTask => 'סימון כלא בוצעה';
+
+  @override
+  String uncheckConfirm(String name) {
+    return 'לסמן את \"$name\" כלא בוצעה? הכוכב שנאסף נשאר.';
+  }
+
+  @override
+  String get resetRoutine => 'איפוס השגרה להיום';
+
+  @override
+  String get resetRoutineConfirm =>
+      'להתחיל את השגרה מחדש להיום? הכוכבים שכבר נאספו נשארים.';
+
+  @override
+  String get summaryTapHint => 'אפשר לגעת במשימה שסומנה כדי לבטל את הסימון';
 }

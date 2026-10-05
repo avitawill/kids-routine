@@ -86,7 +86,12 @@ class _DailySummaryScreenState extends ConsumerState<DailySummaryScreen> {
           Expanded(
             child: summary == null
                 ? const SizedBox.shrink()
-                : _DayView(summary: summary, locale: locale),
+                : _DayView(
+                    summary: summary,
+                    locale: locale,
+                    day: _day,
+                    isToday: isToday,
+                  ),
           ),
         ],
       ),
@@ -95,10 +100,59 @@ class _DailySummaryScreenState extends ConsumerState<DailySummaryScreen> {
 }
 
 class _DayView extends ConsumerWidget {
-  const _DayView({required this.summary, required this.locale});
+  const _DayView({
+    required this.summary,
+    required this.locale,
+    required this.day,
+    required this.isToday,
+  });
 
   final DaySummary summary;
   final String locale;
+  final DateTime day;
+
+  /// Corrections (unchecking, restarting) are only offered for today.
+  final bool isToday;
+
+  Future<void> _uncheck(
+    BuildContext context,
+    WidgetRef ref,
+    RoutineType type,
+    Task task,
+    AppLanguage lang,
+  ) async {
+    final l = AppLocalizations.of(context);
+    final ok = await confirm(
+      context,
+      title: l.uncheckTask,
+      body: l.uncheckConfirm(task.nameIn(lang)),
+      confirmLabel: l.uncheckTask,
+      cancelLabel: l.cancel,
+    );
+    if (!ok) return;
+    final repo = ref.read(repositoryProvider);
+    final routine = await repo.getRoutine(type);
+    await repo.uncheckTask(routine.id, task.id, day);
+  }
+
+  Future<void> _reset(
+    BuildContext context,
+    WidgetRef ref,
+    RoutineType type,
+  ) async {
+    final l = AppLocalizations.of(context);
+    final ok = await confirm(
+      context,
+      title: l.resetRoutine,
+      body: l.resetRoutineConfirm,
+      confirmLabel: l.resetRoutine,
+      cancelLabel: l.cancel,
+    );
+    if (!ok) return;
+    final repo = ref.read(repositoryProvider);
+    final routine = await repo.getRoutine(type);
+    await repo.resetRoutineToday(routine.id, day);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,6 +180,11 @@ class _DayView extends ConsumerWidget {
             ),
           ],
         ),
+        if (isToday && summary.routines.isNotEmpty)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(top: 4),
+            child: Text(l.summaryTapHint, style: t.bodyMedium),
+          ),
         const SizedBox(height: 12),
         if (summary.routines.isEmpty)
           Padding(
@@ -168,6 +227,24 @@ class _DayView extends ConsumerWidget {
                       task: summary.tasks[e.taskId]!,
                       lang: lang,
                       minutes: minutes,
+                      onTap: isToday && e.isDone
+                          ? () => _uncheck(
+                              context,
+                              ref,
+                              r.routine,
+                              summary.tasks[e.taskId]!,
+                              lang,
+                            )
+                          : null,
+                    ),
+                  if (isToday && r.doneCount > 0)
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: TextButton.icon(
+                        onPressed: () => _reset(context, ref, r.routine),
+                        icon: const Icon(Icons.restart_alt_rounded),
+                        label: Text(l.resetRoutine),
+                      ),
                     ),
                 ],
               ),
@@ -184,7 +261,10 @@ class _TaskRow extends StatelessWidget {
     required this.task,
     required this.lang,
     required this.minutes,
+    this.onTap,
   });
+
+  final VoidCallback? onTap;
 
   final TaskLogEntry entry;
   final Task task;
@@ -196,24 +276,32 @@ class _TaskRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final t = Theme.of(context).textTheme;
     final taken = entry.taken;
-    return Padding(
-      padding: const EdgeInsetsDirectional.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          PictureCircle(size: 32, photoPath: task.photoPath, emoji: task.emoji),
-          const SizedBox(width: 8),
-          Expanded(child: Text(task.nameIn(lang), style: t.bodyLarge)),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              taken == null
-                  ? l.summaryNotDone
-                  : l.summaryTaken(minutes(taken), minutes(entry.target)),
-              style: t.bodyMedium,
-              textAlign: TextAlign.end,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            PictureCircle(
+              size: 32,
+              photoPath: task.photoPath,
+              emoji: task.emoji,
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            Expanded(child: Text(task.nameIn(lang), style: t.bodyLarge)),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                taken == null
+                    ? l.summaryNotDone
+                    : l.summaryTaken(minutes(taken), minutes(entry.target)),
+                style: t.bodyMedium,
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

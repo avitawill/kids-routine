@@ -843,6 +843,36 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'English'**
   String get languageEn;
+
+  /// No description provided for @uncheckTask.
+  ///
+  /// In he, this message translates to:
+  /// **'סימון כלא בוצעה'**
+  String get uncheckTask;
+
+  /// No description provided for @uncheckConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'לסמן את \"{name}\" כלא בוצעה? הכוכב שנאסף נשאר.'**
+  String uncheckConfirm(String name);
+
+  /// No description provided for @resetRoutine.
+  ///
+  /// In he, this message translates to:
+  /// **'איפוס השגרה להיום'**
+  String get resetRoutine;
+
+  /// No description provided for @resetRoutineConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'להתחיל את השגרה מחדש להיום? הכוכבים שכבר נאספו נשארים.'**
+  String get resetRoutineConfirm;
+
+  /// No description provided for @summaryTapHint.
+  ///
+  /// In he, this message translates to:
+  /// **'אפשר לגעת במשימה שסומנה כדי לבטל את הסימון'**
+  String get summaryTapHint;
 }
 
 class _AppLocalizationsDelegate

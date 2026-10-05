@@ -23,6 +23,8 @@ class RoutineSession {
   RoutineSession(this.routine, this.tasks)
     : progress = RoutineProgress([for (final t in tasks) t.isDone]);
 
+  RoutineSession._(this.routine, this.tasks, this.progress);
+
   final Routine routine;
   final List<SessionTask> tasks;
   final RoutineProgress progress;
@@ -31,6 +33,15 @@ class RoutineSession {
       progress.currentIndex == null ? null : tasks[progress.currentIndex!];
   SessionTask? get next =>
       progress.nextIndex == null ? null : tasks[progress.nextIndex!];
+
+  /// The same session, but with [taskId] as the current task if the child
+  /// chose it and it isn't done yet (any order is fine).
+  RoutineSession choose(int? taskId) {
+    final i = tasks.indexWhere((t) => t.task.id == taskId);
+    return i < 0 || tasks[i].isDone
+        ? this
+        : RoutineSession._(routine, tasks, progress.withCurrent(i));
+  }
 }
 
 class RoutineRepository {
@@ -74,49 +85,104 @@ class RoutineRepository {
     });
   }
 
-  /// Starts the timer for a task the first time it appears today. Does
-  /// nothing if it was already started, so the timer survives app restarts.
-  Future<void> ensureStarted(int routineId, int taskId, DateTime now) => db
-      .into(db.runLogs)
-      .insert(
-        RunLogsCompanion.insert(
-          date: dateKey(now),
-          routineId: routineId,
-          taskId: taskId,
-          startedAt: now,
+  /// Starts the task's timer when it comes on screen. Keeps an already
+  /// running timer (so it survives app restarts); restarts one that was
+  /// paused or unchecked.
+  Future<void> ensureStarted(int routineId, int taskId, DateTime now) =>
+      db.transaction(() async {
+        await db
+            .into(db.runLogs)
+            .insert(
+              RunLogsCompanion.insert(
+                date: dateKey(now),
+                routineId: routineId,
+                taskId: taskId,
+                startedAt: Value(now),
+              ),
+              mode: InsertMode.insertOrIgnore,
+            );
+        await (db.update(db.runLogs)..where(
+              (l) => _today(l, routineId, taskId, now) & l.startedAt.isNull(),
+            ))
+            .write(RunLogsCompanion(startedAt: Value(now)));
+      });
+
+  /// The child chose another task first: this one's timer stops and starts
+  /// fresh when it comes back.
+  Future<void> pauseTask(int routineId, int taskId, DateTime now) =>
+      (db.update(db.runLogs)..where(
+            (l) => _today(l, routineId, taskId, now) & l.completedAt.isNull(),
+          ))
+          .write(const RunLogsCompanion(startedAt: Value(null)));
+
+  /// Parent mode: marks a task done today as not done. Stars are never taken
+  /// away; doing it again today doesn't earn a second one.
+  Future<void> uncheckTask(int routineId, int taskId, DateTime day) =>
+      (db.update(
+        db.runLogs,
+      )..where((l) => _today(l, routineId, taskId, day))).write(
+        const RunLogsCompanion(
+          startedAt: Value(null),
+          completedAt: Value(null),
         ),
-        mode: InsertMode.insertOrIgnore,
       );
 
-  /// Marks a task done and awards its star. Returns false (and awards
-  /// nothing) if it was already done today.
+  /// Parent mode: starts a routine over for today (stars stay).
+  Future<void> resetRoutineToday(int routineId, DateTime day) =>
+      (db.update(db.runLogs)..where(
+            (l) => l.date.equals(dateKey(day)) & l.routineId.equals(routineId),
+          ))
+          .write(
+            const RunLogsCompanion(
+              startedAt: Value(null),
+              completedAt: Value(null),
+            ),
+          );
+
+  Expression<bool> _today(
+    $RunLogsTable l,
+    int routineId,
+    int taskId,
+    DateTime day,
+  ) =>
+      l.date.equals(dateKey(day)) &
+      l.routineId.equals(routineId) &
+      l.taskId.equals(taskId);
+
+  /// Marks a task done. Awards its star unless this task already earned one
+  /// today (it was unchecked and done again). Returns false if it was
+  /// already done.
   Future<bool> completeTask(int routineId, int taskId, DateTime now) =>
       db.transaction(() async {
         final date = dateKey(now);
         await ensureStarted(routineId, taskId, now);
-        final log =
-            await (db.select(db.runLogs)..where(
-                  (l) =>
-                      l.date.equals(date) &
-                      l.routineId.equals(routineId) &
-                      l.taskId.equals(taskId),
-                ))
-                .getSingle();
+        final log = await (db.select(
+          db.runLogs,
+        )..where((l) => _today(l, routineId, taskId, now))).getSingle();
         if (log.completedAt != null) return false;
 
         await (db.update(db.runLogs)..where((l) => l.id.equals(log.id))).write(
           RunLogsCompanion(completedAt: Value(now)),
         );
-        await db
-            .into(db.starLedger)
-            .insert(
-              StarLedgerCompanion.insert(
-                date: date,
-                delta: StarRules.perTask,
-                reason: StarReason.taskDone,
-                refId: Value(log.id),
-              ),
-            );
+        final rewarded =
+            await (db.select(db.starLedger)..where(
+                  (e) =>
+                      e.reason.equalsValue(StarReason.taskDone) &
+                      e.refId.equals(log.id),
+                ))
+                .get();
+        if (rewarded.isEmpty) {
+          await db
+              .into(db.starLedger)
+              .insert(
+                StarLedgerCompanion.insert(
+                  date: date,
+                  delta: StarRules.perTask,
+                  reason: StarReason.taskDone,
+                  refId: Value(log.id),
+                ),
+              );
+        }
         return true;
       });
 

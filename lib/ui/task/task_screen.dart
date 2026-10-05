@@ -47,6 +47,9 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
   /// chime only plays when time runs out while the child is watching.
   bool _sawRunning = false;
 
+  /// The task the child picked to do now (any order is fine), if any.
+  int? _chosenId;
+
   /// While the star burst plays, keep showing the task that was just done.
   (SessionTask, SessionTask?)? _frozen;
   bool _leaving = false;
@@ -106,6 +109,20 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
         .completeTask(session.routine.id, current.task.id, _now());
   }
 
+  /// The child picked another task: the current one waits (its timer starts
+  /// over when it comes back) and the picked one becomes current.
+  void _choose(RoutineSession session, int taskId) {
+    final current = session.current;
+    if (_frozen != null || current == null || current.task.id == taskId) {
+      return;
+    }
+    HapticFeedback.selectionClick();
+    ref
+        .read(repositoryProvider)
+        .pauseTask(session.routine.id, current.task.id, _now());
+    setState(() => _chosenId = taskId);
+  }
+
   void _replay(Task task) {
     final lang = ref.read(childProvider).value?.language ?? AppLanguage.he;
     _audio.announceTask(task, lang);
@@ -121,10 +138,11 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.watch(sessionProvider(widget.type)).value;
-    if (session == null) {
+    final raw = ref.watch(sessionProvider(widget.type)).value;
+    if (raw == null) {
       return const Scaffold(body: SizedBox.shrink());
     }
+    final session = raw.choose(_chosenId);
 
     if (_frozen == null) {
       if (session.progress.isComplete) {
@@ -264,7 +282,12 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
       children: [
         topBar,
         if (dots)
-          _ProgressDots(session: session, frozenDoneId: _frozen?.$1.task.id),
+          _ProgressDots(
+            session: session,
+            currentId: current.task.id,
+            frozenDoneId: _frozen?.$1.task.id,
+            onChoose: (id) => _choose(session, id),
+          ),
         const SizedBox(height: 4),
         Expanded(child: pie),
         const SizedBox(height: 8),
@@ -276,7 +299,12 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 8),
-        if (next != null) _NextPeek(task: next.task, lang: lang),
+        if (next != null)
+          _NextPeek(
+            task: next.task,
+            lang: lang,
+            onTap: () => _choose(session, next.task.id),
+          ),
         const SizedBox(height: 16),
         doneButton,
       ],
@@ -307,6 +335,7 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
                         width: 280,
                         child: _ProgressRail(
                           session: session,
+                          onChoose: (id) => _choose(session, id),
                           currentId: current.task.id,
                           frozenDoneId: _frozen?.$1.task.id,
                           lang: lang,
@@ -329,12 +358,14 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
 class _ProgressRail extends StatelessWidget {
   const _ProgressRail({
     required this.session,
+    required this.onChoose,
     required this.currentId,
     required this.frozenDoneId,
     required this.lang,
   });
 
   final RoutineSession session;
+  final ValueChanged<int> onChoose;
   final int currentId;
   final int? frozenDoneId;
   final AppLanguage lang;
@@ -359,41 +390,48 @@ class _ProgressRail extends StatelessWidget {
                 builder: (context) {
                   final done = item.isDone || item.task.id == frozenDoneId;
                   final isCurrent = item.task.id == currentId && !done;
-                  return Container(
-                    margin: const EdgeInsetsDirectional.only(bottom: 6),
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isCurrent
-                          ? AppColors.timerTrack
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          item.task.emoji ?? '⭐',
-                          style: const TextStyle(fontSize: 24),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            item.task.nameIn(lang),
-                            style: (isCurrent ? t.titleMedium : t.bodyLarge)
-                                ?.copyWith(
-                                  color: done ? AppColors.inkSoft : null,
-                                ),
-                            overflow: TextOverflow.ellipsis,
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    // Any task not done yet can be picked to do now.
+                    onTap: done || isCurrent
+                        ? null
+                        : () => onChoose(item.task.id),
+                    child: Container(
+                      margin: const EdgeInsetsDirectional.only(bottom: 6),
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isCurrent
+                            ? AppColors.timerTrack
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            item.task.emoji ?? '⭐',
+                            style: const TextStyle(fontSize: 24),
                           ),
-                        ),
-                        if (done)
-                          const Icon(
-                            Icons.check_circle_rounded,
-                            color: AppColors.done,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              item.task.nameIn(lang),
+                              style: (isCurrent ? t.titleMedium : t.bodyLarge)
+                                  ?.copyWith(
+                                    color: done ? AppColors.inkSoft : null,
+                                  ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                      ],
+                          if (done)
+                            const Icon(
+                              Icons.check_circle_rounded,
+                              color: AppColors.done,
+                            ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -406,71 +444,116 @@ class _ProgressRail extends StatelessWidget {
 }
 
 class _NextPeek extends StatelessWidget {
-  const _NextPeek({required this.task, required this.lang});
+  const _NextPeek({
+    required this.task,
+    required this.lang,
+    required this.onTap,
+  });
 
   final Task task;
   final AppLanguage lang;
+
+  /// Do this one now instead.
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final style = Theme.of(context).textTheme.titleMedium
         ?.copyWith(color: AppColors.inkSoft);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Flexible(child: Text(l.nextUp, style: style, maxLines: 1)),
-        const SizedBox(width: 6),
-        // arrow_forward follows text direction: points left in Hebrew.
-        const Icon(
-          Icons.arrow_forward_rounded,
-          size: 20,
-          color: AppColors.inkSoft,
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 8,
+          vertical: 6,
         ),
-        const SizedBox(width: 6),
-        Text(task.emoji ?? '', style: const TextStyle(fontSize: 22)),
-        const SizedBox(width: 4),
-        Flexible(
-          flex: 2,
-          child: Text(
-            task.nameIn(lang),
-            style: style,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(child: Text(l.nextUp, style: style, maxLines: 1)),
+            const SizedBox(width: 6),
+            // arrow_forward follows text direction: points left in Hebrew.
+            const Icon(
+              Icons.arrow_forward_rounded,
+              size: 20,
+              color: AppColors.inkSoft,
+            ),
+            const SizedBox(width: 6),
+            Text(task.emoji ?? '', style: const TextStyle(fontSize: 22)),
+            const SizedBox(width: 4),
+            Flexible(
+              flex: 2,
+              child: Text(
+                task.nameIn(lang),
+                style: style,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
 
 class _ProgressDots extends StatelessWidget {
-  const _ProgressDots({required this.session, this.frozenDoneId});
+  const _ProgressDots({
+    required this.session,
+    required this.currentId,
+    required this.onChoose,
+    this.frozenDoneId,
+  });
 
   final RoutineSession session;
+  final int currentId;
+  final ValueChanged<int> onChoose;
   final int? frozenDoneId;
 
   @override
   Widget build(BuildContext context) {
-    return ExcludeSemantics(
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 6,
-        runSpacing: 6,
-        children: [
-          for (final t in session.tasks)
-            Container(
-              width: 14,
-              height: 14,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: t.isDone || t.task.id == frozenDoneId
-                    ? AppColors.done
-                    : AppColors.timerTrack,
-              ),
-            ),
-        ],
-      ),
+    return Wrap(
+      alignment: WrapAlignment.center,
+      children: [
+        for (final t in session.tasks)
+          Builder(
+            builder: (context) {
+              final done = t.isDone || t.task.id == frozenDoneId;
+              final isCurrent = t.task.id == currentId && !done;
+              return Semantics(
+                button: !done && !isCurrent,
+                label: t.task.emoji,
+                child: InkResponse(
+                  radius: 18,
+                  // A not-done task can be picked to do now.
+                  onTap: done || isCurrent ? null : () => onChoose(t.task.id),
+                  child: SizedBox.square(
+                    dimension: 30,
+                    child: Center(
+                      child: Container(
+                        width: isCurrent ? 20 : 14,
+                        height: isCurrent ? 20 : 14,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: done
+                              ? AppColors.done
+                              : isCurrent
+                              ? AppColors.surface
+                              : AppColors.timerTrack,
+                          border: isCurrent
+                              ? Border.all(color: AppColors.timer, width: 4)
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 }

@@ -1807,9 +1807,9 @@ class $RunLogsTable extends RunLogs with TableInfo<$RunLogsTable, RunLog> {
   late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
     'started_at',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _completedAtMeta = const VerificationMeta(
     'completedAt',
@@ -1875,8 +1875,6 @@ class $RunLogsTable extends RunLogs with TableInfo<$RunLogsTable, RunLog> {
         _startedAtMeta,
         startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
       );
-    } else if (isInserting) {
-      context.missing(_startedAtMeta);
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -1919,7 +1917,7 @@ class $RunLogsTable extends RunLogs with TableInfo<$RunLogsTable, RunLog> {
       startedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}started_at'],
-      )!,
+      ),
       completedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}completed_at'],
@@ -1940,14 +1938,14 @@ class RunLog extends DataClass implements Insertable<RunLog> {
   final String date;
   final int routineId;
   final int taskId;
-  final DateTime startedAt;
+  final DateTime? startedAt;
   final DateTime? completedAt;
   const RunLog({
     required this.id,
     required this.date,
     required this.routineId,
     required this.taskId,
-    required this.startedAt,
+    this.startedAt,
     this.completedAt,
   });
   @override
@@ -1957,7 +1955,9 @@ class RunLog extends DataClass implements Insertable<RunLog> {
     map['date'] = Variable<String>(date);
     map['routine_id'] = Variable<int>(routineId);
     map['task_id'] = Variable<int>(taskId);
-    map['started_at'] = Variable<DateTime>(startedAt);
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
     if (!nullToAbsent || completedAt != null) {
       map['completed_at'] = Variable<DateTime>(completedAt);
     }
@@ -1970,7 +1970,9 @@ class RunLog extends DataClass implements Insertable<RunLog> {
       date: Value(date),
       routineId: Value(routineId),
       taskId: Value(taskId),
-      startedAt: Value(startedAt),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
       completedAt: completedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(completedAt),
@@ -1987,7 +1989,7 @@ class RunLog extends DataClass implements Insertable<RunLog> {
       date: serializer.fromJson<String>(json['date']),
       routineId: serializer.fromJson<int>(json['routineId']),
       taskId: serializer.fromJson<int>(json['taskId']),
-      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
     );
   }
@@ -1999,7 +2001,7 @@ class RunLog extends DataClass implements Insertable<RunLog> {
       'date': serializer.toJson<String>(date),
       'routineId': serializer.toJson<int>(routineId),
       'taskId': serializer.toJson<int>(taskId),
-      'startedAt': serializer.toJson<DateTime>(startedAt),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
     };
   }
@@ -2009,14 +2011,14 @@ class RunLog extends DataClass implements Insertable<RunLog> {
     String? date,
     int? routineId,
     int? taskId,
-    DateTime? startedAt,
+    Value<DateTime?> startedAt = const Value.absent(),
     Value<DateTime?> completedAt = const Value.absent(),
   }) => RunLog(
     id: id ?? this.id,
     date: date ?? this.date,
     routineId: routineId ?? this.routineId,
     taskId: taskId ?? this.taskId,
-    startedAt: startedAt ?? this.startedAt,
+    startedAt: startedAt.present ? startedAt.value : this.startedAt,
     completedAt: completedAt.present ? completedAt.value : this.completedAt,
   );
   RunLog copyWithCompanion(RunLogsCompanion data) {
@@ -2065,7 +2067,7 @@ class RunLogsCompanion extends UpdateCompanion<RunLog> {
   final Value<String> date;
   final Value<int> routineId;
   final Value<int> taskId;
-  final Value<DateTime> startedAt;
+  final Value<DateTime?> startedAt;
   final Value<DateTime?> completedAt;
   const RunLogsCompanion({
     this.id = const Value.absent(),
@@ -2080,12 +2082,11 @@ class RunLogsCompanion extends UpdateCompanion<RunLog> {
     required String date,
     required int routineId,
     required int taskId,
-    required DateTime startedAt,
+    this.startedAt = const Value.absent(),
     this.completedAt = const Value.absent(),
   }) : date = Value(date),
        routineId = Value(routineId),
-       taskId = Value(taskId),
-       startedAt = Value(startedAt);
+       taskId = Value(taskId);
   static Insertable<RunLog> custom({
     Expression<int>? id,
     Expression<String>? date,
@@ -2109,7 +2110,7 @@ class RunLogsCompanion extends UpdateCompanion<RunLog> {
     Value<String>? date,
     Value<int>? routineId,
     Value<int>? taskId,
-    Value<DateTime>? startedAt,
+    Value<DateTime?>? startedAt,
     Value<DateTime?>? completedAt,
   }) {
     return RunLogsCompanion(
@@ -4413,7 +4414,7 @@ typedef $$RunLogsTableCreateCompanionBuilder = RunLogsCompanion Function({
   required String date,
   required int routineId,
   required int taskId,
-  required DateTime startedAt,
+  Value<DateTime?> startedAt,
   Value<DateTime?> completedAt,
 });
 typedef $$RunLogsTableUpdateCompanionBuilder = RunLogsCompanion Function({
@@ -4421,7 +4422,7 @@ typedef $$RunLogsTableUpdateCompanionBuilder = RunLogsCompanion Function({
   Value<String> date,
   Value<int> routineId,
   Value<int> taskId,
-  Value<DateTime> startedAt,
+  Value<DateTime?> startedAt,
   Value<DateTime?> completedAt,
 });
 
@@ -4718,7 +4719,7 @@ class $$RunLogsTableTableManager
                 Value<String> date = const Value.absent(),
                 Value<int> routineId = const Value.absent(),
                 Value<int> taskId = const Value.absent(),
-                Value<DateTime> startedAt = const Value.absent(),
+                Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
               }) => RunLogsCompanion(
                 id: id,
@@ -4734,7 +4735,7 @@ class $$RunLogsTableTableManager
                 required String date,
                 required int routineId,
                 required int taskId,
-                required DateTime startedAt,
+                Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
               }) => RunLogsCompanion.insert(
                 id: id,

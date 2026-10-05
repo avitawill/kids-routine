@@ -123,5 +123,10 @@
   "progressRail": "Routine tasks",
   "languageHe": "עברית",
   "languageEs": "Español",
-  "languageEn": "English"
+  "languageEn": "English",
+  "uncheckTask": "Mark as not done",
+  "uncheckConfirm": "Mark \"{name}\" as not done? The star already earned stays.",
+  "resetRoutine": "Restart today's routine",
+  "resetRoutineConfirm": "Start this routine over for today? Stars already earned stay.",
+  "summaryTapHint": "Tap a finished task to unmark it"
 }

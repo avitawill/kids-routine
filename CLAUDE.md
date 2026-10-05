@@ -90,6 +90,12 @@ Implementation notes (M4):
 - The release APK's permissions: RECORD_AUDIO, POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, SCHEDULE_EXACT_ALARM, VIBRATE, ACCESS_NETWORK_STATE (from the audio player library; harmless without INTERNET). No INTERNET.
 - Widget tests: DB calls made directly from a test body must go through `tester.runAsync` (fresh drift queries don't complete on fake time); the `settle()` helpers do this.
 
+Changes after first real use (2026-10-05, owner feedback):
+- Any order: the child can tap the next-task peek, a progress dot, or a rail row to do that task now. The task she leaves is paused (its `startedAt` cleared) and its timer starts fresh when it comes back. After Done the app goes to the first not-done task; the peek always shows that one.
+- Schema v3: `RunLogs.startedAt` is nullable (null = not running: paused or unchecked). Upgrade rebuilds the table, keeping rows.
+- Parent corrections (daily summary, today only): tap a done task to uncheck it, or "restart today's routine". Stars are never taken away; a task that already earned its star today earns no second one when redone.
+- Gear: the 2 s hold is timed by the clock (not animation frames, which lag at startup); a quick tap shows the hint "hold for parent mode" instead of doing nothing.
+
 ## Built-in task library (seed)
 Task names are nouns, so they are gender-neutral ("צחצוח שיניים", not "תצחצחי"). Default minutes in parentheses. Fill Spanish and English names for every task and list them for my review.
 

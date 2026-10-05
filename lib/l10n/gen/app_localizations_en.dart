@@ -518,4 +518,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageEn => 'English';
+
+  @override
+  String get uncheckTask => 'Mark as not done';
+
+  @override
+  String uncheckConfirm(String name) {
+    return 'Mark \"$name\" as not done? The star already earned stays.';
+  }
+
+  @override
+  String get resetRoutine => 'Restart today\'s routine';
+
+  @override
+  String get resetRoutineConfirm =>
+      'Start this routine over for today? Stars already earned stay.';
+
+  @override
+  String get summaryTapHint => 'Tap a finished task to unmark it';
 }

@@ -25,11 +25,16 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'kids_routine'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
+      if (from < 3 && from >= 1) {
+        // v3: RunLogs.startedAt became nullable (tasks can be paused or
+        // unchecked). Rebuilds the table, keeping every row.
+        await m.alterTable(TableMigration(runLogs));
+      }
       if (from < 2) {
         // M3: Jewish pack switch, and Spanish/English names for built-ins.
         await m.addColumn(children, children.jewishPack);

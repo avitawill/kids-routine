@@ -40,6 +40,9 @@ class SummaryRepository {
       final entries = <int, TaskLogEntry>{}; // by RunLog id
       for (final row in rows) {
         final log = row.readTable(db.runLogs);
+        final startedAt = log.startedAt;
+        // Paused or unchecked and not shown again: nothing to report.
+        if (startedAt == null) continue;
         final task = row.readTable(db.tasks);
         tasks[task.id] = task;
         final position =
@@ -51,7 +54,7 @@ class SummaryRepository {
           taskId: task.id,
           position: position,
           targetMinutes: task.targetMinutes,
-          startedAt: log.startedAt,
+          startedAt: startedAt,
           completedAt: log.completedAt,
         );
       }
