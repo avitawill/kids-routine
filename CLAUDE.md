@@ -17,7 +17,7 @@ Version 1.0 is being prepared for Google Play (kids / Families policy). Build an
 - DB: drift (SQLite) + build_runner
 - Routing: go_router
 - i18n: flutter_localizations + intl, ARB files, ICU `select` for gender
-- Notifications: flutter_local_notifications with inexact scheduling (do not request exact-alarm permission)
+- Notifications: flutter_local_notifications. Exact alarms via the user-granted SCHEDULE_EXACT_ALARM (owner's decision, 2026-10-05: a 7:00 reminder must not arrive at 7:50); falls back to inexact if not granted. Never USE_EXACT_ALARM.
 - Audio: just_audio (playback), record (parent recordings), flutter_tts (fallback voice)
 - Images: image_picker
 - Celebration: confetti package or hand-rolled; every animation <= 1.5 s
@@ -75,7 +75,7 @@ Implementation notes (M2):
 
 Implementation notes (M3):
 - Schema v2: `Children.jewishPack`; the upgrade also fills Spanish/English names of built-in tasks where both are still empty (parent edits are kept). Covered by `test/data/migration_test.dart`.
-- Reminders: `upcomingReminders` builds 14 days of local wall-clock times; `syncReminders` re-arms them (inexact, `inexactAllowWhileIdle`, absolute UTC instants, no tz database) on launch, resume and any change to routines, language or gender. Tapping one opens that routine. The Android 13+ notification permission is asked when a reminder switch is turned on; refused → the switch stays off.
+- Reminders: `upcomingReminders` builds 14 days of local wall-clock times; `syncReminders` re-arms them (`exactAllowWhileIdle` when exact alarms are allowed, else `inexactAllowWhileIdle`; absolute UTC instants, no tz database) on launch, resume and any change to routines, language or gender. Tapping one opens that routine. The Android 13+ notification permission is asked when a reminder switch is turned on; refused → the switch stays off.
 - Jewish pack placement rules live in `lib/domain/pack_placement.dart` (Modeh Ani first, Netilat Yadayim after it, Birchot Hashachar after getting dressed, the blessing before breakfast and lunch, Shema last in the evening); a missing anchor puts the task at the end. Turning the pack off removes those tasks from routines only.
 - Spanish/English task names (for review) are in `lib/data/db/seed.dart` (`seedNamesEs`, `seedNamesEn`). The celebration line is a `select` on the routine type (Spanish needs different articles).
 - Sessions are re-read on resume, so a routine left open overnight starts fresh.
@@ -87,7 +87,7 @@ Implementation notes (M4):
 - Backup = one .zip: `backup.json` (format `kids_routine_backup` v1, every table via drift `toJson`) + `media/...`. Restore parses and validates everything first, then replaces all tables in one transaction and the media folder; paths with `..` are ignored.
 - Launcher icons and the 512 px Play icon are generated from `MascotPainter` by `flutter test tool/generate_icons_test.dart`. App name is localized (`res/values*/`): My Routine / השגרה שלי / Mi rutina.
 - Release signing reads `android/key.properties` (not in git) → upload keystore in `%USERPROFILE%\.android-keys\`. Without it, release falls back to the debug key.
-- The release APK's permissions: RECORD_AUDIO, POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, VIBRATE, ACCESS_NETWORK_STATE (from the audio player library; harmless without INTERNET). No INTERNET.
+- The release APK's permissions: RECORD_AUDIO, POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, SCHEDULE_EXACT_ALARM, VIBRATE, ACCESS_NETWORK_STATE (from the audio player library; harmless without INTERNET). No INTERNET.
 - Widget tests: DB calls made directly from a test body must go through `tester.runAsync` (fresh drift queries don't complete on fake time); the `settle()` helpers do this.
 
 ## Built-in task library (seed)

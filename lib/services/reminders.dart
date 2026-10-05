@@ -66,13 +66,22 @@ class LocalReminders implements Reminders {
   }
 
   @override
-  Future<bool> requestPermission() async =>
-      await _android?.requestNotificationsPermission() ?? true;
+  Future<bool> requestPermission() async {
+    final allowed = await _android?.requestNotificationsPermission() ?? true;
+    // On time, not "within the hour": ask for exact alarms too (Android 14+
+    // sends the parent to the "Alarms & reminders" setting; 12-13 grant it).
+    // Best effort: without it reminders still come, just inexact.
+    if (allowed && await _android?.canScheduleExactNotifications() == false) {
+      await _android?.requestExactAlarmsPermission();
+    }
+    return allowed;
+  }
 
   @override
   Future<void> replaceAll(List<ReminderSlot> slots, ReminderTexts texts) async {
     try {
       await _plugin.cancelAllPendingNotifications();
+      final exact = await _android?.canScheduleExactNotifications() ?? false;
       final details = NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
@@ -89,7 +98,9 @@ class LocalReminders implements Reminders {
           // no time-zone database is needed.
           scheduledDate: tz.TZDateTime.from(s.at.toUtc(), tz.UTC),
           notificationDetails: details,
-          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          androidScheduleMode: exact
+              ? AndroidScheduleMode.exactAllowWhileIdle
+              : AndroidScheduleMode.inexactAllowWhileIdle,
           title: texts.title(s.routine),
           body: texts.body,
           payload: s.routine.name,

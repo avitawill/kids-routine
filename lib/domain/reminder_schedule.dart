@@ -34,8 +34,8 @@ class ReminderSlot {
 /// Reminders for the next [days] days (starting today), soonest first.
 ///
 /// Built from local calendar dates, so they stay at the right wall-clock time
-/// across daylight-saving changes. Inexact on purpose: the app reschedules on
-/// every launch and change, and never asks for exact alarms.
+/// across daylight-saving changes. The app reschedules on every launch,
+/// resume and change, so the 14-day window keeps rolling forward.
 List<ReminderSlot> upcomingReminders(
   List<ReminderRule> rules,
   DateTime now, {

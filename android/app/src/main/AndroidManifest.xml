@@ -1,7 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Reminders: re-arm after a reboot. Inexact alarms only, so no
-         SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM. -->
+    <!-- Reminders: re-arm after a reboot, and fire on time. Exact alarms are
+         granted by the parent ("Alarms & reminders"); without that the app
+         falls back to inexact. Not USE_EXACT_ALARM (alarm-clock apps only). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <application
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"

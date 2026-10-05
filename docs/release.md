@@ -46,6 +46,8 @@ be reset through Play Console support, but that takes days.
    - `POST_NOTIFICATIONS` — routine reminders the parent switches on.
    - `RECEIVE_BOOT_COMPLETED` — re-arm reminders after a restart.
    - `ACCESS_NETWORK_STATE` comes from the audio player library; without INTERNET the app cannot use the network.
-   - No exact alarms, no camera permission (the camera opens through the system).
+   - `SCHEDULE_EXACT_ALARM` — reminders the parent sets for a routine's start time must
+     arrive on time; the parent grants it in "Alarms & reminders". (Not `USE_EXACT_ALARM`.)
+   - No camera permission (the camera opens through the system).
 10. Upload `app-release.aab` to **Internal testing** first, install from the Play link
     on the family phone, then promote to Production.

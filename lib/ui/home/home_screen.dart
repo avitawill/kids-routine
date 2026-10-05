@@ -29,37 +29,46 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 24),
-          children: [
-            Row(
+        // Tablets: keep the cards a comfortable width instead of stretching.
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: ListView(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 24),
               children: [
-                StarCounter(count: stars),
-                const Spacer(),
-                GearHoldButton(
-                  tooltip: l.holdForParents,
-                  onHeld: () => context.push('/gate'),
+                Row(
+                  children: [
+                    StarCounter(count: stars),
+                    const Spacer(),
+                    GearHoldButton(
+                      tooltip: l.holdForParents,
+                      onHeld: () => context.push('/gate'),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Mascot(size: 120),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _SpeechBubble(
+                        lines: [
+                          greeting,
+                          l.letsStart(genderKey(child?.gender)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                for (final type in RoutineType.values) ...[
+                  _RoutineCard(type: type),
+                  const SizedBox(height: 14),
+                ],
               ],
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Mascot(size: 120),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _SpeechBubble(
-                    lines: [greeting, l.letsStart(genderKey(child?.gender))],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            for (final type in RoutineType.values) ...[
-              _RoutineCard(type: type),
-              const SizedBox(height: 14),
-            ],
-          ],
+          ),
         ),
       ),
     );
