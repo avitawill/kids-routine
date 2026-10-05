@@ -100,15 +100,10 @@ class _RoutineCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final t = Theme.of(context).textTheme;
-    final available = type.isAvailable;
-    final progress = available
-        ? ref.watch(sessionProvider(type)).value?.progress
-        : null;
+    final progress = ref.watch(sessionProvider(type)).value?.progress;
 
     final String subtitle;
-    if (!available) {
-      subtitle = l.comingSoon;
-    } else if (progress == null) {
+    if (progress == null) {
       subtitle = '';
     } else if (progress.isComplete) {
       subtitle = l.routineFinished;
@@ -117,13 +112,14 @@ class _RoutineCard extends ConsumerWidget {
     }
 
     return Opacity(
-      opacity: available ? 1 : 0.5,
+      // An empty routine (all tasks removed) has nothing to start.
+      opacity: progress != null && progress.total == 0 ? 0.5 : 1,
       child: Material(
         color: type.color,
         borderRadius: BorderRadius.circular(28),
         child: InkWell(
           borderRadius: BorderRadius.circular(28),
-          onTap: !available || progress == null
+          onTap: progress == null || progress.total == 0
               ? null
               : () => context.go(
                   progress.isComplete

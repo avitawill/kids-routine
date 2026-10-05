@@ -41,10 +41,6 @@
   "routineMorning": "בוקר",
   "routineNoon": "צהריים",
   "routineEvening": "ערב",
-  "comingSoon": "בקרוב",
-  "@comingSoon": {
-    "description": "Shown on routine cards that are not available yet."
-  },
   "routineProgress": "{done} מתוך {total}",
   "@routineProgress": {
     "placeholders": {
@@ -94,8 +90,9 @@
       }
     }
   },
-  "celebrationRoutineDone": "סיימנו את שגרת ה{routine}!",
+  "celebrationRoutineDone": "{routine, select, morning{סיימנו את שגרת הבוקר!} noon{סיימנו את שגרת הצהריים!} evening{סיימנו את שגרת הערב!} other{סיימנו!}}",
   "@celebrationRoutineDone": {
+    "description": "`routine` is morning, noon or evening.",
     "placeholders": {
       "routine": {
         "type": "String"
@@ -179,7 +176,6 @@
     }
   },
   "routineReminder": "תזכורת",
-  "routineReminderLater": "התזכורות יתחילו לפעול בשלב הבא",
   "routineTasks": "משימות",
   "routineEmpty": "אין עדיין משימות בשגרה",
   "addTask": "הוספת משימה",
@@ -351,5 +347,50 @@
   "genderFemale": "בת",
   "genderMale": "בן",
   "mascotName": "שם הדמות",
-  "saved": "נשמר"
+  "saved": "נשמר",
+  "routineReminderHint": "התראה בשעת ההתחלה, בימים שנבחרו",
+  "notificationTitle": "{routine, select, morning{🌅 הגיע הזמן לשגרת הבוקר} noon{☀️ הגיע הזמן לשגרת הצהריים} evening{🌙 הגיע הזמן לשגרת הערב} other{הגיע הזמן לשגרה}}",
+  "@notificationTitle": {
+    "description": "Reminder notification title.",
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderChannelName": "תזכורות לשגרה",
+  "@reminderChannelName": {
+    "description": "Android notification channel name."
+  },
+  "notificationsDenied": "אין הרשאה להתראות. אפשר לאשר בהגדרות הטלפון.",
+  "settingsLanguage": "שפה",
+  "jewishPack": "מנהגים יהודיים",
+  "jewishPackHint": "מוסיף מודה אני, נטילת ידיים, ברכות השחר, ברכה לפני האוכל וקריאת שמע",
+  "backupSection": "גיבוי",
+  "backupExport": "שמירת גיבוי לקובץ",
+  "backupImport": "שחזור מקובץ גיבוי",
+  "backupImportConfirm": "השחזור יחליף את כל הנתונים באפליקציה (משימות, כוכבים, פרסים, תמונות והקלטות). להמשיך?",
+  "restore": "שחזור",
+  "backupDone": "הגיבוי נשמר",
+  "restoreDone": "השחזור הושלם",
+  "backupFailed": "לא הצלחנו לקרוא את הקובץ כגיבוי",
+  "taskTimeLeft": "{count, plural, =0{הזמן נגמר} =1{נשארה דקה אחת} other{נשארו {count} דקות}}",
+  "@taskTimeLeft": {
+    "description": "Screen-reader label for the pie timer only (never shown).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressRail": "המשימות של השגרה",
+  "@progressRail": {
+    "description": "Screen-reader label for the tablet progress rail."
+  },
+  "languageHe": "עברית",
+  "languageEs": "Español",
+  "languageEn": "English",
+  "@languageHe": {
+    "description": "Language names stay in their own language in every locale."
+  }
 }

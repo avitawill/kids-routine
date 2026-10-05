@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../domain/date_key.dart';
+import '../domain/pack_placement.dart';
 import '../domain/routine_progress.dart';
 import '../domain/star_ledger.dart';
 import 'db/database.dart';
@@ -147,6 +148,8 @@ class RoutineRepository {
     db.routines,
   )..where((r) => r.type.equalsValue(type))).getSingle();
 
+  Stream<List<Routine>> watchRoutines() => db.select(db.routines).watch();
+
   Stream<Routine> watchRoutine(RoutineType type) => (db.select(
     db.routines,
   )..where((r) => r.type.equalsValue(type))).watchSingle();
@@ -229,4 +232,74 @@ class RoutineRepository {
             .get();
     await reorder(rt.routineId, [for (final r in rest) r.id]);
   });
+
+  Future<void> setLanguage(AppLanguage language) async {
+    final child = await watchChild().first;
+    await (db.update(db.children)..where((c) => c.id.equals(child.id))).write(
+      ChildrenCompanion(language: Value(language)),
+    );
+  }
+
+  /// Turns the Jewish pack on (placing its tasks, see [jewishPackPlacements])
+  /// or off (removing them from every routine). Stars and history stay.
+  Future<void> setJewishPack(bool on) => db.transaction(() async {
+    final child = await watchChild().first;
+    await (db.update(db.children)..where((c) => c.id.equals(child.id))).write(
+      ChildrenCompanion(jewishPack: Value(on)),
+    );
+    final packTasks = await (db.select(
+      db.tasks,
+    )..where((t) => t.pack.equalsValue(TaskPack.jewish))).get();
+    final idByKey = {for (final t in packTasks) t.builtInKey: t.id};
+
+    if (!on) {
+      final ids = idByKey.values.toList();
+      final affected = await (db.select(
+        db.routineTasks,
+      )..where((rt) => rt.taskId.isIn(ids))).get();
+      await (db.delete(
+        db.routineTasks,
+      )..where((rt) => rt.taskId.isIn(ids))).go();
+      for (final routineId in {for (final rt in affected) rt.routineId}) {
+        await _compact(routineId);
+      }
+      return;
+    }
+
+    for (final p in jewishPackPlacements) {
+      final taskId = idByKey[p.key];
+      if (taskId == null) continue;
+      final routine = await getRoutine(p.routine);
+      final items = await _items(routine.id);
+      if (items.any((i) => i.$2.id == taskId)) continue;
+      final keys = [for (final i in items) i.$2.builtInKey];
+      final order = [for (final i in items) i.$1.id];
+      // Insert at the end, then move into place.
+      await addToRoutine(routine.id, taskId);
+      final added = (await _items(routine.id)).last.$1.id;
+      order.insert(p.indexIn(keys), added);
+      await reorder(routine.id, order);
+    }
+  });
+
+  Future<List<(RoutineTask, Task)>> _items(int routineId) async {
+    final rows =
+        await (db.select(db.routineTasks).join([
+                innerJoin(
+                  db.tasks,
+                  db.tasks.id.equalsExp(db.routineTasks.taskId),
+                ),
+              ])
+              ..where(db.routineTasks.routineId.equals(routineId))
+              ..orderBy([OrderingTerm.asc(db.routineTasks.position)]))
+            .get();
+    return [
+      for (final r in rows)
+        (r.readTable(db.routineTasks), r.readTable(db.tasks)),
+    ];
+  }
+
+  Future<void> _compact(int routineId) async => reorder(routineId, [
+    for (final (rt, _) in await _items(routineId)) rt.id,
+  ]);
 }

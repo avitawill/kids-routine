@@ -1,7 +1,6 @@
 import '../../domain/enums.dart';
 
-/// A built-in task. Spanish/English names are filled in M3 (Hebrew is the
-/// fallback until then).
+/// A built-in task.
 class SeedTask {
   const SeedTask(
     this.key,
@@ -16,7 +15,65 @@ class SeedTask {
   final String nameHe;
   final int minutes;
   final TaskPack pack;
+
+  String get nameEs => seedNamesEs[key]!;
+  String get nameEn => seedNamesEn[key]!;
 }
+
+/// Infinitives / nouns, so they work for both genders.
+const seedNamesEs = {
+  'wake_up': 'Levantarse de la cama',
+  'toilet': 'Baño',
+  'brush_teeth': 'Cepillarse los dientes',
+  'wash_face': 'Lavarse la cara',
+  'get_dressed': 'Vestirse',
+  'brush_hair': 'Peinarse',
+  'breakfast': 'Desayuno',
+  'pack_bag': 'Preparar la mochila',
+  'shoes': 'Ponerse los zapatos',
+  'coat': 'Abrigo',
+  'wash_hands': 'Lavarse las manos',
+  'lunch': 'Almuerzo',
+  'unpack_bag': 'Vaciar la mochila',
+  'homework': 'Deberes',
+  'tidy_toys': 'Ordenar los juguetes',
+  'shower': 'Ducha',
+  'pajamas': 'Pijama',
+  'clothes_for_tomorrow': 'Preparar la ropa de mañana',
+  'bedtime_story': 'Cuento antes de dormir',
+  'modeh_ani': 'Modé Aní',
+  'netilat_yadayim': 'Netilat Yadáyim',
+  'birchot_hashachar': 'Birjot Hashájar',
+  'bracha_before_food': 'Bendición antes de comer',
+  'shema_bedtime': 'Shemá antes de dormir',
+};
+
+const seedNamesEn = {
+  'wake_up': 'Get out of bed',
+  'toilet': 'Toilet',
+  'brush_teeth': 'Brush teeth',
+  'wash_face': 'Wash face',
+  'get_dressed': 'Get dressed',
+  'brush_hair': 'Brush hair',
+  'breakfast': 'Breakfast',
+  'pack_bag': 'Pack school bag',
+  'shoes': 'Put on shoes',
+  'coat': 'Coat',
+  'wash_hands': 'Wash hands',
+  'lunch': 'Lunch',
+  'unpack_bag': 'Unpack school bag',
+  'homework': 'Homework',
+  'tidy_toys': 'Tidy up toys',
+  'shower': 'Shower',
+  'pajamas': 'Pajamas',
+  'clothes_for_tomorrow': "Lay out tomorrow's clothes",
+  'bedtime_story': 'Bedtime story',
+  'modeh_ani': 'Modeh Ani',
+  'netilat_yadayim': 'Netilat Yadayim',
+  'birchot_hashachar': 'Birchot Hashachar',
+  'bracha_before_food': 'Blessing before food',
+  'shema_bedtime': 'Bedtime Shema',
+};
 
 /// Names are nouns, so they work for both genders.
 const seedTasks = <SeedTask>[
@@ -42,8 +99,8 @@ const seedTasks = <SeedTask>[
   SeedTask('pajamas', '🌙', "פיג'מה", 3),
   SeedTask('clothes_for_tomorrow', '👗', 'הכנת בגדים למחר', 5),
   SeedTask('bedtime_story', '📖', 'סיפור לפני השינה', 10),
-  // Jewish pack: seeded as tasks, but not placed in any routine until the
-  // parent turns the pack on (M3).
+  // Jewish pack: seeded as tasks, but placed in routines only while the
+  // parent has the pack on (see pack_placement.dart).
   SeedTask('modeh_ani', '🙏', 'מודה אני', 1, pack: TaskPack.jewish),
   SeedTask('netilat_yadayim', '💧', 'נטילת ידיים', 2, pack: TaskPack.jewish),
   SeedTask('birchot_hashachar', '📜', 'ברכות השחר', 3, pack: TaskPack.jewish),

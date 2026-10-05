@@ -17,8 +17,9 @@ class TaskLibraryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final lang = ref.watch(childProvider).value?.language ?? AppLanguage.he;
+    final jewishOn = ref.watch(childProvider).value?.jewishPack ?? false;
     final tasks = (ref.watch(libraryProvider).value ?? const <Task>[])
-        .where((t) => t.pack != TaskPack.jewish) // shown once it's on (M3)
+        .where((t) => t.pack != TaskPack.jewish || jewishOn)
         .toList();
 
     return ParentScaffold(

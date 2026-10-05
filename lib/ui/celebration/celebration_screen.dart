@@ -74,7 +74,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      l.celebrationRoutineDone(widget.type.label(l)),
+                      l.celebrationRoutineDone(widget.type.name),
                       style: t.titleLarge,
                       textAlign: TextAlign.center,
                     ),

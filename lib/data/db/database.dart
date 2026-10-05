@@ -25,10 +25,30 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'kids_routine'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // M3: Jewish pack switch, and Spanish/English names for built-ins.
+        await m.addColumn(children, children.jewishPack);
+        for (final t in seedTasks) {
+          await (update(tasks)..where(
+                (x) =>
+                    x.builtInKey.equals(t.key) &
+                    x.nameEs.isNull() &
+                    x.nameEn.isNull(),
+              ))
+              .write(
+                TasksCompanion(
+                  nameEs: Value(t.nameEs),
+                  nameEn: Value(t.nameEn),
+                ),
+              );
+        }
+      }
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
       if (details.wasCreated) await _seed();
@@ -50,6 +70,8 @@ class AppDatabase extends _$AppDatabase {
         TasksCompanion.insert(
           builtInKey: Value(t.key),
           nameHe: t.nameHe,
+          nameEs: Value(t.nameEs),
+          nameEn: Value(t.nameEn),
           emoji: Value(t.emoji),
           targetMinutes: t.minutes,
           pack: t.pack,

@@ -10,7 +10,7 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get appTitle => 'השגרה שלי';
+  String get appTitle => 'Mi rutina';
 
   @override
   String greetingMorning(String name) {
@@ -18,7 +18,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'empty': '',
       'other': ', $name',
     });
-    return 'בוקר טוב$_temp0!';
+    return '¡Buenos días$_temp0!';
   }
 
   @override
@@ -27,7 +27,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'empty': '',
       'other': ', $name',
     });
-    return 'צהריים טובים$_temp0!';
+    return '¡Buenas tardes$_temp0!';
   }
 
   @override
@@ -36,60 +36,57 @@ class AppLocalizationsEs extends AppLocalizations {
       'empty': '',
       'other': ', $name',
     });
-    return 'ערב טוב$_temp0!';
+    return '¡Buenas noches$_temp0!';
   }
 
   @override
   String letsStart(String gender) {
     String _temp0 = intl.Intl.selectLogic(gender, {
-      'female': 'בואי נתחיל!',
-      'other': 'בוא נתחיל!',
+      'female': '¿Lista? ¡Empecemos!',
+      'other': '¿Listo? ¡Empecemos!',
     });
     return '$_temp0';
   }
 
   @override
-  String get routineMorning => 'בוקר';
+  String get routineMorning => 'Mañana';
 
   @override
-  String get routineNoon => 'צהריים';
+  String get routineNoon => 'Mediodía';
 
   @override
-  String get routineEvening => 'ערב';
-
-  @override
-  String get comingSoon => 'בקרוב';
+  String get routineEvening => 'Noche';
 
   @override
   String routineProgress(int done, int total) {
-    return '$done מתוך $total';
+    return '$done de $total';
   }
 
   @override
-  String get routineFinished => 'כל הכבוד! ✨';
+  String get routineFinished => '¡Muy bien! ✨';
 
   @override
-  String get doneButton => 'סיימתי!';
+  String get doneButton => '¡Hecho!';
 
   @override
-  String get nextUp => 'אחר כך:';
+  String get nextUp => 'Después:';
 
   @override
-  String get replayAudio => 'להשמיע שוב';
+  String get replayAudio => 'Escuchar otra vez';
 
   @override
-  String get goHome => 'חזרה הביתה';
+  String get goHome => 'Volver al inicio';
 
   @override
-  String get parentMode => 'מצב הורים';
+  String get parentMode => 'Modo padres';
 
   @override
   String starCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count כוכבים',
-      one: 'כוכב אחד',
+      other: '$count estrellas',
+      one: 'una estrella',
     );
     return '$_temp0';
   }
@@ -97,15 +94,21 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String celebrationTitle(String gender) {
     String _temp0 = intl.Intl.selectLogic(gender, {
-      'female': 'את אלופה!',
-      'other': 'אתה אלוף!',
+      'female': '¡Eres una campeona!',
+      'other': '¡Eres un campeón!',
     });
     return '$_temp0';
   }
 
   @override
   String celebrationRoutineDone(String routine) {
-    return 'סיימנו את שגרת ה$routine!';
+    String _temp0 = intl.Intl.selectLogic(routine, {
+      'morning': '¡Terminamos la rutina de la mañana!',
+      'noon': '¡Terminamos la rutina del mediodía!',
+      'evening': '¡Terminamos la rutina de la noche!',
+      'other': '¡Terminamos!',
+    });
+    return '$_temp0';
   }
 
   @override
@@ -113,8 +116,8 @@ class AppLocalizationsEs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'קיבלת $count כוכבים!',
-      one: 'קיבלת כוכב אחד!',
+      other: '¡Ganaste $count estrellas!',
+      one: '¡Ganaste una estrella!',
       zero: '',
     );
     return '$_temp0';
@@ -122,7 +125,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String starsTotal(int count) {
-    return 'יש לך $count ⭐';
+    return 'Tienes $count ⭐';
   }
 
   @override
@@ -130,25 +133,25 @@ class AppLocalizationsEs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'עוד $count כוכבים ל$name!',
-      one: 'עוד כוכב אחד ל$name!',
+      other: '¡Faltan $count estrellas para $name!',
+      one: '¡Falta una estrella para $name!',
     );
     return '$_temp0';
   }
 
   @override
   String rewardReady(String name) {
-    return 'יש מספיק כוכבים ל$name! 🎉';
+    return '¡Ya tienes estrellas para $name! 🎉';
   }
 
   @override
-  String get holdForParents => 'לחיצה ארוכה למצב הורים';
+  String get holdForParents => 'Mantén pulsado para el modo padres';
 
   @override
-  String get exitParentMode => 'יציאה ממצב הורים';
+  String get exitParentMode => 'Salir del modo padres';
 
   @override
-  String get gateTitle => 'רק להורים';
+  String get gateTitle => 'Solo para padres';
 
   @override
   String gateQuestion(int a, int b) {
@@ -156,246 +159,246 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get gateTryAgain => 'לא בדיוק. הנה שאלה אחרת.';
+  String get gateTryAgain => 'No exactamente. Aquí hay otra pregunta.';
 
   @override
-  String get gateConfirm => 'אישור';
+  String get gateConfirm => 'Aceptar';
 
   @override
-  String get gateBackspace => 'מחיקת ספרה';
+  String get gateBackspace => 'Borrar dígito';
 
   @override
-  String get cancel => 'ביטול';
+  String get cancel => 'Cancelar';
 
   @override
-  String get save => 'שמירה';
+  String get save => 'Guardar';
 
   @override
-  String get delete => 'מחיקה';
+  String get delete => 'Eliminar';
 
   @override
-  String get parentRoutines => 'שגרות';
+  String get parentRoutines => 'Rutinas';
 
   @override
-  String get parentTasks => 'ספריית משימות';
+  String get parentTasks => 'Biblioteca de tareas';
 
   @override
-  String get parentRewards => 'פרסים';
+  String get parentRewards => 'Premios';
 
   @override
-  String get parentSummary => 'סיכום יומי';
+  String get parentSummary => 'Resumen del día';
 
   @override
-  String get parentSettings => 'הגדרות';
+  String get parentSettings => 'Ajustes';
 
   @override
-  String get routineStartTime => 'שעת התחלה';
+  String get routineStartTime => 'Hora de inicio';
 
   @override
-  String get routineDays => 'ימים';
+  String get routineDays => 'Días';
 
   @override
   String dayShort(String day) {
     String _temp0 = intl.Intl.selectLogic(day, {
-      'sun': 'א׳',
-      'mon': 'ב׳',
-      'tue': 'ג׳',
-      'wed': 'ד׳',
-      'thu': 'ה׳',
-      'fri': 'ו׳',
-      'sat': 'ש׳',
+      'sun': 'D',
+      'mon': 'L',
+      'tue': 'M',
+      'wed': 'X',
+      'thu': 'J',
+      'fri': 'V',
+      'sat': 'S',
       'other': '',
     });
     return '$_temp0';
   }
 
   @override
-  String get routineReminder => 'תזכורת';
+  String get routineReminder => 'Recordatorio';
 
   @override
-  String get routineReminderLater => 'התזכורות יתחילו לפעול בשלב הבא';
+  String get routineTasks => 'Tareas';
 
   @override
-  String get routineTasks => 'משימות';
+  String get routineEmpty => 'Todavía no hay tareas en esta rutina';
 
   @override
-  String get routineEmpty => 'אין עדיין משימות בשגרה';
+  String get addTask => 'Añadir tarea';
 
   @override
-  String get addTask => 'הוספת משימה';
+  String get newTask => 'Tarea nueva';
 
   @override
-  String get newTask => 'משימה חדשה';
+  String get removeFromRoutine => 'Quitar de la rutina';
 
   @override
-  String get removeFromRoutine => 'הסרה מהשגרה';
-
-  @override
-  String get dragToReorder => 'גרירה לשינוי הסדר';
+  String get dragToReorder => 'Arrastra para cambiar el orden';
 
   @override
   String minutesShort(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count דק׳',
-      one: 'דקה',
+      other: '$count min',
+      one: '1 min',
     );
     return '$_temp0';
   }
 
   @override
-  String get builtIn => 'מובנית';
+  String get builtIn => 'Incluida';
 
   @override
-  String get taskEditTitle => 'עריכת משימה';
+  String get taskEditTitle => 'Editar tarea';
 
   @override
-  String get taskNameHe => 'שם בעברית';
+  String get taskNameHe => 'Nombre en hebreo';
 
   @override
-  String get taskNameEs => 'שם בספרדית (לא חובה)';
+  String get taskNameEs => 'Nombre en español (opcional)';
 
   @override
-  String get taskNameEn => 'שם באנגלית (לא חובה)';
+  String get taskNameEn => 'Nombre en inglés (opcional)';
 
   @override
-  String get taskNameRequired => 'צריך שם בעברית';
+  String get taskNameRequired => 'Hace falta un nombre en hebreo';
 
   @override
-  String get chooseEmoji => 'אימוג׳י';
+  String get chooseEmoji => 'Emoji';
 
   @override
-  String get takePhoto => 'מצלמה';
+  String get takePhoto => 'Cámara';
 
   @override
-  String get choosePhoto => 'גלריה';
+  String get choosePhoto => 'Galería';
 
   @override
-  String get removePhoto => 'הסרת התמונה';
+  String get removePhoto => 'Quitar la foto';
 
   @override
-  String get taskVoice => 'הקלטה';
+  String get taskVoice => 'Grabación';
 
   @override
-  String get recordVoice => 'הקלטה';
+  String get recordVoice => 'Grabar';
 
   @override
-  String get stopRecording => 'עצירה';
+  String get stopRecording => 'Detener';
 
   @override
-  String get playRecording => 'השמעה';
+  String get playRecording => 'Escuchar';
 
   @override
-  String get deleteRecording => 'מחיקת ההקלטה';
+  String get deleteRecording => 'Borrar la grabación';
 
   @override
   String recordingNow(int seconds) {
-    return 'מקליט… $seconds שנ׳';
+    return 'Grabando… $seconds s';
   }
 
   @override
-  String get noRecordingHint => 'בלי הקלטה, הטלפון יקריא את שם המשימה';
+  String get noRecordingHint =>
+      'Sin grabación, el teléfono leerá el nombre de la tarea';
 
   @override
-  String get micDenied => 'אין הרשאה למיקרופון. אפשר לאשר בהגדרות הטלפון.';
+  String get micDenied =>
+      'No hay permiso para el micrófono. Puedes darlo en los ajustes del teléfono.';
 
   @override
-  String get taskMinutes => 'זמן מטרה';
+  String get taskMinutes => 'Tiempo objetivo';
 
   @override
   String deleteTaskConfirm(String name) {
-    return 'למחוק את המשימה \"$name\"? היא תוסר מכל השגרות.';
+    return '¿Eliminar la tarea \"$name\"? Se quitará de todas las rutinas.';
   }
 
   @override
-  String get discardChanges => 'לצאת בלי לשמור?';
+  String get discardChanges => '¿Salir sin guardar?';
 
   @override
-  String get discard => 'יציאה בלי שמירה';
+  String get discard => 'Salir sin guardar';
 
   @override
-  String get keepEditing => 'המשך עריכה';
+  String get keepEditing => 'Seguir editando';
 
   @override
-  String get rewardsEmpty => 'אין עדיין פרסים. אפשר להוסיף פרס עם הכפתור למטה.';
+  String get rewardsEmpty =>
+      'Todavía no hay premios. Añade uno con el botón de abajo.';
 
   @override
-  String get addReward => 'הוספת פרס';
+  String get addReward => 'Añadir premio';
 
   @override
-  String get rewardNew => 'פרס חדש';
+  String get rewardNew => 'Premio nuevo';
 
   @override
-  String get rewardEdit => 'עריכת פרס';
+  String get rewardEdit => 'Editar premio';
 
   @override
-  String get rewardName => 'שם הפרס';
+  String get rewardName => 'Nombre del premio';
 
   @override
-  String get rewardNameRequired => 'צריך שם לפרס';
+  String get rewardNameRequired => 'Hace falta un nombre';
 
   @override
-  String get rewardCost => 'מחיר בכוכבים';
+  String get rewardCost => 'Precio en estrellas';
 
   @override
-  String get redeem => 'מימוש';
+  String get redeem => 'Canjear';
 
   @override
   String redeemConfirmTitle(String name) {
-    return 'לממש את \"$name\"?';
+    return '¿Canjear \"$name\"?';
   }
 
   @override
   String redeemConfirmBody(int cost) {
-    return 'זה הרגע לעשות את זה ביחד! ירדו $cost כוכבים.';
+    return '¡Es el momento de hacerlo juntos! Se restarán $cost estrellas.';
   }
 
   @override
-  String get redeemDone => 'מומש! 🎉';
+  String get redeemDone => '¡Canjeado! 🎉';
 
   @override
   String rewardStarsHave(int have, int cost) {
-    return '$have מתוך $cost ⭐';
+    return '$have de $cost ⭐';
   }
 
   @override
-  String get redeemedSection => 'מומשו';
+  String get redeemedSection => 'Canjeados';
 
   @override
   String redeemedOn(String date) {
-    return 'מומש ב־$date';
+    return 'Canjeado el $date';
   }
 
   @override
-  String get offerAgain => 'להציע שוב';
+  String get offerAgain => 'Ofrecer otra vez';
 
   @override
   String deleteRewardConfirm(String name) {
-    return 'למחוק את הפרס \"$name\"?';
+    return '¿Eliminar el premio \"$name\"?';
   }
 
   @override
   String starBalance(int count) {
-    return 'יתרה: $count ⭐';
+    return 'Saldo: $count ⭐';
   }
 
   @override
-  String get today => 'היום';
+  String get today => 'Hoy';
 
   @override
-  String get previousDay => 'יום קודם';
+  String get previousDay => 'Día anterior';
 
   @override
-  String get nextDay => 'יום הבא';
+  String get nextDay => 'Día siguiente';
 
   @override
   String summaryStars(int count) {
-    return 'כוכבים שנאספו: $count';
+    return 'Estrellas ganadas: $count';
   }
 
   @override
-  String get summaryEmpty => 'אין פעילות ביום הזה';
+  String get summaryEmpty => 'No hubo actividad este día';
 
   @override
   String summaryFinished(String start, String end, String duration) {
@@ -404,35 +407,117 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String summaryInProgress(String start, int done, int total) {
-    return 'התחילה ב־$start · $done מתוך $total';
+    return 'Empezó a las $start · $done de $total';
   }
 
   @override
   String summaryTaken(String taken, String target) {
-    return '$taken (יעד $target)';
+    return '$taken (objetivo $target)';
   }
 
   @override
-  String get summaryNotDone => 'לא סומנה';
+  String get summaryNotDone => 'Sin marcar';
 
   @override
-  String get lessThanMinute => 'פחות מדקה';
+  String get lessThanMinute => 'menos de 1 min';
 
   @override
-  String get childName => 'שם הילד/ה';
+  String get childName => 'Nombre del niño o la niña';
 
   @override
-  String get childGender => 'מגדר (לנוסח הפנייה)';
+  String get childGender => 'Género (para cómo le hablamos)';
 
   @override
-  String get genderFemale => 'בת';
+  String get genderFemale => 'Niña';
 
   @override
-  String get genderMale => 'בן';
+  String get genderMale => 'Niño';
 
   @override
-  String get mascotName => 'שם הדמות';
+  String get mascotName => 'Nombre de la mascota';
 
   @override
-  String get saved => 'נשמר';
+  String get saved => 'Guardado';
+
+  @override
+  String get routineReminderHint =>
+      'Aviso a la hora de inicio, los días elegidos';
+
+  @override
+  String notificationTitle(String routine) {
+    String _temp0 = intl.Intl.selectLogic(routine, {
+      'morning': '🌅 ¡Hora de la rutina de la mañana!',
+      'noon': '☀️ ¡Hora de la rutina del mediodía!',
+      'evening': '🌙 ¡Hora de la rutina de la noche!',
+      'other': '¡Hora de la rutina!',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderChannelName => 'Recordatorios de rutina';
+
+  @override
+  String get notificationsDenied =>
+      'No hay permiso para notificaciones. Puedes darlo en los ajustes del teléfono.';
+
+  @override
+  String get settingsLanguage => 'Idioma';
+
+  @override
+  String get jewishPack => 'Costumbres judías';
+
+  @override
+  String get jewishPackHint =>
+      'Añade Modé Aní, Netilat Yadáyim, Birjot Hashájar, la bendición antes de comer y el Shemá';
+
+  @override
+  String get backupSection => 'Copia de seguridad';
+
+  @override
+  String get backupExport => 'Guardar copia en un archivo';
+
+  @override
+  String get backupImport => 'Restaurar desde un archivo';
+
+  @override
+  String get backupImportConfirm =>
+      'Restaurar reemplazará todos los datos de la app (tareas, estrellas, premios, fotos y grabaciones). ¿Continuar?';
+
+  @override
+  String get restore => 'Restaurar';
+
+  @override
+  String get backupDone => 'Copia guardada';
+
+  @override
+  String get restoreDone => 'Restauración completada';
+
+  @override
+  String get backupFailed =>
+      'No pudimos leer el archivo como copia de seguridad';
+
+  @override
+  String taskTimeLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Quedan $count minutos',
+      one: 'Queda 1 minuto',
+      zero: 'Se acabó el tiempo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get progressRail => 'Las tareas de la rutina';
+
+  @override
+  String get languageHe => 'עברית';
+
+  @override
+  String get languageEs => 'Español';
+
+  @override
+  String get languageEn => 'English';
 }

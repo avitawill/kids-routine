@@ -33,6 +33,7 @@ void main() {
           databaseProvider.overrideWithValue(db),
           mediaStoreProvider.overrideWithValue(makeTestMedia()),
           audioProvider.overrideWithValue(audio),
+          remindersProvider.overrideWithValue(FakeReminders()),
           clockProvider.overrideWithValue(clock.call),
         ],
         child: const KidsRoutineApp(),

@@ -58,9 +58,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get routineEvening => 'ערב';
 
   @override
-  String get comingSoon => 'בקרוב';
-
-  @override
   String routineProgress(int done, int total) {
     return '$done מתוך $total';
   }
@@ -105,7 +102,13 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String celebrationRoutineDone(String routine) {
-    return 'סיימנו את שגרת ה$routine!';
+    String _temp0 = intl.Intl.selectLogic(routine, {
+      'morning': 'סיימנו את שגרת הבוקר!',
+      'noon': 'סיימנו את שגרת הצהריים!',
+      'evening': 'סיימנו את שגרת הערב!',
+      'other': 'סיימנו!',
+    });
+    return '$_temp0';
   }
 
   @override
@@ -211,9 +214,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get routineReminder => 'תזכורת';
-
-  @override
-  String get routineReminderLater => 'התזכורות יתחילו לפעול בשלב הבא';
 
   @override
   String get routineTasks => 'משימות';
@@ -435,4 +435,84 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get saved => 'נשמר';
+
+  @override
+  String get routineReminderHint => 'התראה בשעת ההתחלה, בימים שנבחרו';
+
+  @override
+  String notificationTitle(String routine) {
+    String _temp0 = intl.Intl.selectLogic(routine, {
+      'morning': '🌅 הגיע הזמן לשגרת הבוקר',
+      'noon': '☀️ הגיע הזמן לשגרת הצהריים',
+      'evening': '🌙 הגיע הזמן לשגרת הערב',
+      'other': 'הגיע הזמן לשגרה',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get reminderChannelName => 'תזכורות לשגרה';
+
+  @override
+  String get notificationsDenied =>
+      'אין הרשאה להתראות. אפשר לאשר בהגדרות הטלפון.';
+
+  @override
+  String get settingsLanguage => 'שפה';
+
+  @override
+  String get jewishPack => 'מנהגים יהודיים';
+
+  @override
+  String get jewishPackHint =>
+      'מוסיף מודה אני, נטילת ידיים, ברכות השחר, ברכה לפני האוכל וקריאת שמע';
+
+  @override
+  String get backupSection => 'גיבוי';
+
+  @override
+  String get backupExport => 'שמירת גיבוי לקובץ';
+
+  @override
+  String get backupImport => 'שחזור מקובץ גיבוי';
+
+  @override
+  String get backupImportConfirm =>
+      'השחזור יחליף את כל הנתונים באפליקציה (משימות, כוכבים, פרסים, תמונות והקלטות). להמשיך?';
+
+  @override
+  String get restore => 'שחזור';
+
+  @override
+  String get backupDone => 'הגיבוי נשמר';
+
+  @override
+  String get restoreDone => 'השחזור הושלם';
+
+  @override
+  String get backupFailed => 'לא הצלחנו לקרוא את הקובץ כגיבוי';
+
+  @override
+  String taskTimeLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'נשארו $count דקות',
+      one: 'נשארה דקה אחת',
+      zero: 'הזמן נגמר',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get progressRail => 'המשימות של השגרה';
+
+  @override
+  String get languageHe => 'עברית';
+
+  @override
+  String get languageEs => 'Español';
+
+  @override
+  String get languageEn => 'English';
 }

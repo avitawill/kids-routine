@@ -39,6 +39,7 @@ void main() {
           databaseProvider.overrideWithValue(db),
           mediaStoreProvider.overrideWithValue(media),
           audioProvider.overrideWithValue(audio),
+          remindersProvider.overrideWithValue(FakeReminders()),
           recorderProvider.overrideWithValue(recorder),
           clockProvider.overrideWithValue(() => now),
         ],

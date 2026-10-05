@@ -22,9 +22,6 @@ extension RoutineTypeLabels on RoutineType {
     RoutineType.noon => AppColors.noon,
     RoutineType.evening => AppColors.evening,
   };
-
-  /// Only the morning routine is playable in M1.
-  bool get isAvailable => this == RoutineType.morning;
 }
 
 /// Value for ICU `select` on gender: `female`, else `other`.

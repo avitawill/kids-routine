@@ -10,6 +10,7 @@ import '../domain/reward_progress.dart';
 import '../services/audio_service.dart';
 import '../services/media_store.dart';
 import '../services/recorder.dart';
+import '../services/reminders.dart';
 
 /// Overridden in tests with an in-memory database.
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -39,6 +40,10 @@ final recorderProvider = Provider<VoiceRecorder>((ref) {
   ref.onDispose(r.dispose);
   return r;
 });
+
+/// Overridden in tests with a fake.
+final remindersProvider = Provider<Reminders>((ref) => LocalReminders());
+
 final photoPickerProvider = Provider<PhotoPicker>((ref) => pickPhoto);
 
 final repositoryProvider = Provider<RoutineRepository>(
@@ -68,6 +73,10 @@ final localeProvider = Provider<Locale>((ref) {
   final lang = ref.watch(childProvider).value?.language ?? AppLanguage.he;
   return Locale(lang.name);
 });
+
+final routinesProvider = StreamProvider<List<Routine>>(
+  (ref) => ref.watch(repositoryProvider).watchRoutines(),
+);
 
 final starBalanceProvider = StreamProvider<int>(
   (ref) => ref.watch(repositoryProvider).watchStarBalance(),

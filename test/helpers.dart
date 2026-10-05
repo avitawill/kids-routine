@@ -5,7 +5,9 @@ import 'package:drift/native.dart';
 import 'package:kids_routine/data/db/database.dart';
 import 'package:kids_routine/services/audio_service.dart';
 import 'package:kids_routine/services/media_store.dart';
+import 'package:kids_routine/domain/reminder_schedule.dart';
 import 'package:kids_routine/services/recorder.dart';
+import 'package:kids_routine/services/reminders.dart';
 
 AppDatabase makeTestDb() => AppDatabase(
   DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true),
@@ -75,4 +77,28 @@ class FakeRecorder implements VoiceRecorder {
 
   @override
   Future<void> dispose() async {}
+}
+
+/// Records reminder schedules instead of posting notifications.
+class FakeReminders implements Reminders {
+  bool allowed = true;
+  List<ReminderSlot> slots = [];
+  ReminderTexts? texts;
+  void Function(RoutineType)? onOpen;
+
+  @override
+  Future<void> init(void Function(RoutineType) onOpen) async =>
+      this.onOpen = onOpen;
+
+  @override
+  Future<RoutineType?> launchedFrom() async => null;
+
+  @override
+  Future<bool> requestPermission() async => allowed;
+
+  @override
+  Future<void> replaceAll(List<ReminderSlot> slots, ReminderTexts texts) async {
+    this.slots = slots;
+    this.texts = texts;
+  }
 }

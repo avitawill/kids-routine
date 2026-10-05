@@ -9,6 +9,7 @@ class Children extends Table {
   TextColumn get gender => textEnum<Gender>()();
   TextColumn get language => textEnum<AppLanguage>()();
   TextColumn get mascotName => text()();
+  BoolColumn get jewishPack => boolean().withDefault(const Constant(false))();
 }
 
 @DataClassName('Routine')

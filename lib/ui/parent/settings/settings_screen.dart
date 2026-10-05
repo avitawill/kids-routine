@@ -6,8 +6,8 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../state/providers.dart';
 import '../parent_scaffold.dart';
 
-/// Child name, gender (for gendered phrasing) and mascot name. Language,
-/// Jewish pack and backup arrive in M3/M4.
+/// Child name, gender (for gendered phrasing) and mascot name are saved with
+/// the Save button; language and the Jewish pack apply immediately.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -45,6 +45,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final t = Theme.of(context).textTheme;
     final child = ref.watch(childProvider).value;
     if (child != null && !_loaded) {
       _loaded = true;
@@ -52,6 +53,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _mascot.text = child.mascotName;
       _gender = child.gender;
     }
+    final repo = ref.read(repositoryProvider);
 
     return ParentScaffold(
       title: l.parentSettings,
@@ -70,7 +72,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             textCapitalization: TextCapitalization.words,
           ),
           const SizedBox(height: 24),
-          Text(l.childGender, style: Theme.of(context).textTheme.titleMedium),
+          Text(l.childGender, style: t.titleMedium),
           const SizedBox(height: 8),
           SegmentedButton<Gender>(
             segments: [
@@ -84,6 +86,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           TextField(
             controller: _mascot,
             decoration: InputDecoration(labelText: l.mascotName),
+          ),
+          const SizedBox(height: 24),
+          Text(l.settingsLanguage, style: t.titleMedium),
+          const SizedBox(height: 8),
+          SegmentedButton<AppLanguage>(
+            segments: [
+              ButtonSegment(value: AppLanguage.he, label: Text(l.languageHe)),
+              ButtonSegment(value: AppLanguage.es, label: Text(l.languageEs)),
+              ButtonSegment(value: AppLanguage.en, label: Text(l.languageEn)),
+            ],
+            selected: {child?.language ?? AppLanguage.he},
+            onSelectionChanged: child == null
+                ? null
+                : (s) => repo.setLanguage(s.first),
+          ),
+          const SizedBox(height: 16),
+          SwitchListTile(
+            contentPadding: EdgeInsetsDirectional.zero,
+            title: Text(l.jewishPack),
+            subtitle: Text(l.jewishPackHint),
+            value: child?.jewishPack ?? false,
+            onChanged: child == null ? null : repo.setJewishPack,
           ),
         ],
       ),

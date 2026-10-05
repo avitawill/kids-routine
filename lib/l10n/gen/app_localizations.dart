@@ -148,12 +148,6 @@ abstract class AppLocalizations {
   /// **'ערב'**
   String get routineEvening;
 
-  /// Shown on routine cards that are not available yet.
-  ///
-  /// In he, this message translates to:
-  /// **'בקרוב'**
-  String get comingSoon;
-
   /// No description provided for @routineProgress.
   ///
   /// In he, this message translates to:
@@ -208,10 +202,10 @@ abstract class AppLocalizations {
   /// **'{gender, select, female{את אלופה!} other{אתה אלוף!}}'**
   String celebrationTitle(String gender);
 
-  /// No description provided for @celebrationRoutineDone.
+  /// `routine` is morning, noon or evening.
   ///
   /// In he, this message translates to:
-  /// **'סיימנו את שגרת ה{routine}!'**
+  /// **'{routine, select, morning{סיימנו את שגרת הבוקר!} noon{סיימנו את שגרת הצהריים!} evening{סיימנו את שגרת הערב!} other{סיימנו!}}'**
   String celebrationRoutineDone(String routine);
 
   /// 'קיבלת' is spelled the same for both genders.
@@ -351,12 +345,6 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'תזכורת'**
   String get routineReminder;
-
-  /// No description provided for @routineReminderLater.
-  ///
-  /// In he, this message translates to:
-  /// **'התזכורות יתחילו לפעול בשלב הבא'**
-  String get routineReminderLater;
 
   /// No description provided for @routineTasks.
   ///
@@ -735,6 +723,126 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'נשמר'**
   String get saved;
+
+  /// No description provided for @routineReminderHint.
+  ///
+  /// In he, this message translates to:
+  /// **'התראה בשעת ההתחלה, בימים שנבחרו'**
+  String get routineReminderHint;
+
+  /// Reminder notification title.
+  ///
+  /// In he, this message translates to:
+  /// **'{routine, select, morning{🌅 הגיע הזמן לשגרת הבוקר} noon{☀️ הגיע הזמן לשגרת הצהריים} evening{🌙 הגיע הזמן לשגרת הערב} other{הגיע הזמן לשגרה}}'**
+  String notificationTitle(String routine);
+
+  /// Android notification channel name.
+  ///
+  /// In he, this message translates to:
+  /// **'תזכורות לשגרה'**
+  String get reminderChannelName;
+
+  /// No description provided for @notificationsDenied.
+  ///
+  /// In he, this message translates to:
+  /// **'אין הרשאה להתראות. אפשר לאשר בהגדרות הטלפון.'**
+  String get notificationsDenied;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In he, this message translates to:
+  /// **'שפה'**
+  String get settingsLanguage;
+
+  /// No description provided for @jewishPack.
+  ///
+  /// In he, this message translates to:
+  /// **'מנהגים יהודיים'**
+  String get jewishPack;
+
+  /// No description provided for @jewishPackHint.
+  ///
+  /// In he, this message translates to:
+  /// **'מוסיף מודה אני, נטילת ידיים, ברכות השחר, ברכה לפני האוכל וקריאת שמע'**
+  String get jewishPackHint;
+
+  /// No description provided for @backupSection.
+  ///
+  /// In he, this message translates to:
+  /// **'גיבוי'**
+  String get backupSection;
+
+  /// No description provided for @backupExport.
+  ///
+  /// In he, this message translates to:
+  /// **'שמירת גיבוי לקובץ'**
+  String get backupExport;
+
+  /// No description provided for @backupImport.
+  ///
+  /// In he, this message translates to:
+  /// **'שחזור מקובץ גיבוי'**
+  String get backupImport;
+
+  /// No description provided for @backupImportConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'השחזור יחליף את כל הנתונים באפליקציה (משימות, כוכבים, פרסים, תמונות והקלטות). להמשיך?'**
+  String get backupImportConfirm;
+
+  /// No description provided for @restore.
+  ///
+  /// In he, this message translates to:
+  /// **'שחזור'**
+  String get restore;
+
+  /// No description provided for @backupDone.
+  ///
+  /// In he, this message translates to:
+  /// **'הגיבוי נשמר'**
+  String get backupDone;
+
+  /// No description provided for @restoreDone.
+  ///
+  /// In he, this message translates to:
+  /// **'השחזור הושלם'**
+  String get restoreDone;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In he, this message translates to:
+  /// **'לא הצלחנו לקרוא את הקובץ כגיבוי'**
+  String get backupFailed;
+
+  /// Screen-reader label for the pie timer only (never shown).
+  ///
+  /// In he, this message translates to:
+  /// **'{count, plural, =0{הזמן נגמר} =1{נשארה דקה אחת} other{נשארו {count} דקות}}'**
+  String taskTimeLeft(int count);
+
+  /// Screen-reader label for the tablet progress rail.
+  ///
+  /// In he, this message translates to:
+  /// **'המשימות של השגרה'**
+  String get progressRail;
+
+  /// Language names stay in their own language in every locale.
+  ///
+  /// In he, this message translates to:
+  /// **'עברית'**
+  String get languageHe;
+
+  /// No description provided for @languageEs.
+  ///
+  /// In he, this message translates to:
+  /// **'Español'**
+  String get languageEs;
+
+  /// No description provided for @languageEn.
+  ///
+  /// In he, this message translates to:
+  /// **'English'**
+  String get languageEn;
 }
 
 class _AppLocalizationsDelegate

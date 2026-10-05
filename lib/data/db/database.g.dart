@@ -60,6 +60,21 @@ class $ChildrenTable extends Children with TableInfo<$ChildrenTable, Child> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _jewishPackMeta = const VerificationMeta(
+    'jewishPack',
+  );
+  @override
+  late final GeneratedColumn<bool> jewishPack = GeneratedColumn<bool>(
+    'jewish_pack',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("jewish_pack" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -67,6 +82,7 @@ class $ChildrenTable extends Children with TableInfo<$ChildrenTable, Child> {
     gender,
     language,
     mascotName,
+    jewishPack,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -96,6 +112,12 @@ class $ChildrenTable extends Children with TableInfo<$ChildrenTable, Child> {
       );
     } else if (isInserting) {
       context.missing(_mascotNameMeta);
+    }
+    if (data.containsKey('jewish_pack')) {
+      context.handle(
+        _jewishPackMeta,
+        jewishPack.isAcceptableOrUnknown(data['jewish_pack']!, _jewishPackMeta),
+      );
     }
     return context;
   }
@@ -130,6 +152,10 @@ class $ChildrenTable extends Children with TableInfo<$ChildrenTable, Child> {
         DriftSqlType.string,
         data['${effectivePrefix}mascot_name'],
       )!,
+      jewishPack: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}jewish_pack'],
+      )!,
     );
   }
 
@@ -150,12 +176,14 @@ class Child extends DataClass implements Insertable<Child> {
   final Gender gender;
   final AppLanguage language;
   final String mascotName;
+  final bool jewishPack;
   const Child({
     required this.id,
     required this.name,
     required this.gender,
     required this.language,
     required this.mascotName,
+    required this.jewishPack,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -173,6 +201,7 @@ class Child extends DataClass implements Insertable<Child> {
       );
     }
     map['mascot_name'] = Variable<String>(mascotName);
+    map['jewish_pack'] = Variable<bool>(jewishPack);
     return map;
   }
 
@@ -183,6 +212,7 @@ class Child extends DataClass implements Insertable<Child> {
       gender: Value(gender),
       language: Value(language),
       mascotName: Value(mascotName),
+      jewishPack: Value(jewishPack),
     );
   }
 
@@ -201,6 +231,7 @@ class Child extends DataClass implements Insertable<Child> {
         serializer.fromJson<String>(json['language']),
       ),
       mascotName: serializer.fromJson<String>(json['mascotName']),
+      jewishPack: serializer.fromJson<bool>(json['jewishPack']),
     );
   }
   @override
@@ -216,6 +247,7 @@ class Child extends DataClass implements Insertable<Child> {
         $ChildrenTable.$converterlanguage.toJson(language),
       ),
       'mascotName': serializer.toJson<String>(mascotName),
+      'jewishPack': serializer.toJson<bool>(jewishPack),
     };
   }
 
@@ -225,12 +257,14 @@ class Child extends DataClass implements Insertable<Child> {
     Gender? gender,
     AppLanguage? language,
     String? mascotName,
+    bool? jewishPack,
   }) => Child(
     id: id ?? this.id,
     name: name ?? this.name,
     gender: gender ?? this.gender,
     language: language ?? this.language,
     mascotName: mascotName ?? this.mascotName,
+    jewishPack: jewishPack ?? this.jewishPack,
   );
   Child copyWithCompanion(ChildrenCompanion data) {
     return Child(
@@ -241,6 +275,9 @@ class Child extends DataClass implements Insertable<Child> {
       mascotName: data.mascotName.present
           ? data.mascotName.value
           : this.mascotName,
+      jewishPack: data.jewishPack.present
+          ? data.jewishPack.value
+          : this.jewishPack,
     );
   }
 
@@ -251,13 +288,15 @@ class Child extends DataClass implements Insertable<Child> {
           ..write('name: $name, ')
           ..write('gender: $gender, ')
           ..write('language: $language, ')
-          ..write('mascotName: $mascotName')
+          ..write('mascotName: $mascotName, ')
+          ..write('jewishPack: $jewishPack')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, gender, language, mascotName);
+  int get hashCode =>
+      Object.hash(id, name, gender, language, mascotName, jewishPack);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -266,7 +305,8 @@ class Child extends DataClass implements Insertable<Child> {
           other.name == this.name &&
           other.gender == this.gender &&
           other.language == this.language &&
-          other.mascotName == this.mascotName);
+          other.mascotName == this.mascotName &&
+          other.jewishPack == this.jewishPack);
 }
 
 class ChildrenCompanion extends UpdateCompanion<Child> {
@@ -275,12 +315,14 @@ class ChildrenCompanion extends UpdateCompanion<Child> {
   final Value<Gender> gender;
   final Value<AppLanguage> language;
   final Value<String> mascotName;
+  final Value<bool> jewishPack;
   const ChildrenCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.gender = const Value.absent(),
     this.language = const Value.absent(),
     this.mascotName = const Value.absent(),
+    this.jewishPack = const Value.absent(),
   });
   ChildrenCompanion.insert({
     this.id = const Value.absent(),
@@ -288,6 +330,7 @@ class ChildrenCompanion extends UpdateCompanion<Child> {
     required Gender gender,
     required AppLanguage language,
     required String mascotName,
+    this.jewishPack = const Value.absent(),
   }) : gender = Value(gender),
        language = Value(language),
        mascotName = Value(mascotName);
@@ -297,6 +340,7 @@ class ChildrenCompanion extends UpdateCompanion<Child> {
     Expression<String>? gender,
     Expression<String>? language,
     Expression<String>? mascotName,
+    Expression<bool>? jewishPack,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -304,6 +348,7 @@ class ChildrenCompanion extends UpdateCompanion<Child> {
       if (gender != null) 'gender': gender,
       if (language != null) 'language': language,
       if (mascotName != null) 'mascot_name': mascotName,
+      if (jewishPack != null) 'jewish_pack': jewishPack,
     });
   }
 
@@ -313,6 +358,7 @@ class ChildrenCompanion extends UpdateCompanion<Child> {
     Value<Gender>? gender,
     Value<AppLanguage>? language,
     Value<String>? mascotName,
+    Value<bool>? jewishPack,
   }) {
     return ChildrenCompanion(
       id: id ?? this.id,
@@ -320,6 +366,7 @@ class ChildrenCompanion extends UpdateCompanion<Child> {
       gender: gender ?? this.gender,
       language: language ?? this.language,
       mascotName: mascotName ?? this.mascotName,
+      jewishPack: jewishPack ?? this.jewishPack,
     );
   }
 
@@ -345,6 +392,9 @@ class ChildrenCompanion extends UpdateCompanion<Child> {
     if (mascotName.present) {
       map['mascot_name'] = Variable<String>(mascotName.value);
     }
+    if (jewishPack.present) {
+      map['jewish_pack'] = Variable<bool>(jewishPack.value);
+    }
     return map;
   }
 
@@ -355,7 +405,8 @@ class ChildrenCompanion extends UpdateCompanion<Child> {
           ..write('name: $name, ')
           ..write('gender: $gender, ')
           ..write('language: $language, ')
-          ..write('mascotName: $mascotName')
+          ..write('mascotName: $mascotName, ')
+          ..write('jewishPack: $jewishPack')
           ..write(')'))
         .toString();
   }
@@ -2874,6 +2925,7 @@ typedef $$ChildrenTableCreateCompanionBuilder = ChildrenCompanion Function({
   required Gender gender,
   required AppLanguage language,
   required String mascotName,
+  Value<bool> jewishPack,
 });
 typedef $$ChildrenTableUpdateCompanionBuilder = ChildrenCompanion Function({
   Value<int> id,
@@ -2881,6 +2933,7 @@ typedef $$ChildrenTableUpdateCompanionBuilder = ChildrenCompanion Function({
   Value<Gender> gender,
   Value<AppLanguage> language,
   Value<String> mascotName,
+  Value<bool> jewishPack,
 });
 
 class $$ChildrenTableFilterComposer
@@ -2918,6 +2971,11 @@ class $$ChildrenTableFilterComposer
     column: $table.mascotName,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<bool> get jewishPack => $composableBuilder(
+    column: $table.jewishPack,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$ChildrenTableOrderingComposer
@@ -2953,6 +3011,11 @@ class $$ChildrenTableOrderingComposer
     column: $table.mascotName,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get jewishPack => $composableBuilder(
+    column: $table.jewishPack,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ChildrenTableAnnotationComposer
@@ -2978,6 +3041,11 @@ class $$ChildrenTableAnnotationComposer
 
   GeneratedColumn<String> get mascotName => $composableBuilder(
     column: $table.mascotName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get jewishPack => $composableBuilder(
+    column: $table.jewishPack,
     builder: (column) => column,
   );
 }
@@ -3015,12 +3083,14 @@ class $$ChildrenTableTableManager
                 Value<Gender> gender = const Value.absent(),
                 Value<AppLanguage> language = const Value.absent(),
                 Value<String> mascotName = const Value.absent(),
+                Value<bool> jewishPack = const Value.absent(),
               }) => ChildrenCompanion(
                 id: id,
                 name: name,
                 gender: gender,
                 language: language,
                 mascotName: mascotName,
+                jewishPack: jewishPack,
               ),
           createCompanionCallback:
               ({
@@ -3029,12 +3099,14 @@ class $$ChildrenTableTableManager
                 required Gender gender,
                 required AppLanguage language,
                 required String mascotName,
+                Value<bool> jewishPack = const Value.absent(),
               }) => ChildrenCompanion.insert(
                 id: id,
                 name: name,
                 gender: gender,
                 language: language,
                 mascotName: mascotName,
+                jewishPack: jewishPack,
               ),
           withReferenceMapper: (p0) => p0
               .map(

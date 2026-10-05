@@ -136,9 +136,14 @@ class _RoutineEditorScreenState extends ConsumerState<RoutineEditorScreen> {
     final l = AppLocalizations.of(context);
     final lang = ref.read(childProvider).value?.language ?? AppLanguage.he;
     final inRoutine = {for (final (_, t) in items) t.id};
-    // The Jewish pack is placed by its own switch (M3), not from here.
+    // Jewish-pack tasks are offered only while the pack is on.
+    final jewishOn = ref.read(childProvider).value?.jewishPack ?? false;
     final available = (await ref.read(taskRepositoryProvider).getLibrary())
-        .where((t) => !inRoutine.contains(t.id) && t.pack != TaskPack.jewish)
+        .where(
+          (t) =>
+              !inRoutine.contains(t.id) &&
+              (t.pack != TaskPack.jewish || jewishOn),
+        )
         .toList();
 
     if (!mounted) return;
@@ -254,10 +259,25 @@ class _Settings extends ConsumerWidget {
         SwitchListTile(
           secondary: const Icon(Icons.notifications_rounded),
           title: Text(l.routineReminder),
-          subtitle: Text(l.routineReminderLater),
+          subtitle: Text(l.routineReminderHint),
           value: routine.reminderEnabled,
-          onChanged: (on) =>
-              repo.updateRoutine(routine.id, reminderEnabled: on),
+          onChanged: (on) async {
+            if (on) {
+              final session = ref.read(parentSessionProvider.notifier);
+              final allowed = await session.whileOutside(
+                ref.read(remindersProvider).requestPermission,
+              );
+              if (!allowed) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l.notificationsDenied)),
+                  );
+                }
+                return;
+              }
+            }
+            await repo.updateRoutine(routine.id, reminderEnabled: on);
+          },
         ),
         const Divider(),
         Padding(
