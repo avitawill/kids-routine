@@ -15,6 +15,7 @@ import '../../services/audio_service.dart';
 import '../../state/providers.dart';
 import '../mascot/mascot.dart';
 import '../theme.dart';
+import '../widgets/child_text_scaling.dart';
 import '../widgets/picture_circle.dart';
 import '../widgets/star_burst.dart';
 import '../widgets/star_counter.dart';
@@ -152,6 +153,133 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
     final stars = ref.watch(starBalanceProvider).value ?? 0;
     final t = Theme.of(context).textTheme;
 
+    final mood = _frozen != null
+        ? MascotMood.cheer
+        : _timeUp
+        ? MascotMood.wave
+        : MascotMood.idle;
+
+    final topBar = Row(
+      children: [
+        IconButton(
+          tooltip: l.goHome,
+          iconSize: 32,
+          icon: const Icon(Icons.home_rounded, color: AppColors.inkSoft),
+          onPressed: () => context.go('/'),
+        ),
+        const Spacer(),
+        StarCounter(count: stars),
+        const Spacer(),
+        IconButton(
+          tooltip: l.replayAudio,
+          iconSize: 32,
+          icon: const Icon(Icons.volume_up_rounded, color: AppColors.primary),
+          onPressed: () => _replay(current.task),
+        ),
+      ],
+    );
+
+    final pie = LayoutBuilder(
+      builder: (context, box) {
+        final size = math.min(box.maxWidth, box.maxHeight) * 0.92;
+        final minutesLeft = _timer == null
+            ? current.task.targetMinutes
+            : (_timer!.target.inSeconds * _fraction / 60).ceil();
+        return Center(
+          child: SizedBox.square(
+            dimension: size,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                // Screen readers get the time left; it is never shown as a
+                // number on screen (no clocks in child mode).
+                Semantics(
+                  label: l.taskTimeLeft(minutesLeft),
+                  child: PieTimer(
+                    fraction: _fraction,
+                    color: AppColors.timer,
+                    trackColor: AppColors.timerTrack,
+                    child: Center(
+                      child: PictureCircle(
+                        size: size * 0.62,
+                        photoPath: current.task.photoPath,
+                        emoji: current.task.emoji,
+                      ),
+                    ),
+                  ),
+                ),
+                PositionedDirectional(
+                  end: -8,
+                  bottom: -8,
+                  child: Mascot(size: size * 0.32, mood: mood),
+                ),
+                if (_frozen != null)
+                  StarBurst(
+                    key: ValueKey(_frozen!.$1.task.id),
+                    size: size,
+                    onDone: () {
+                      if (mounted) setState(() => _frozen = null);
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    final doneButton = ConstrainedBox(
+      // Grows with large system text instead of clipping it.
+      constraints: const BoxConstraints(
+        minHeight: 80,
+        minWidth: double.infinity,
+      ),
+      child: FilledButton.icon(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.done,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: 24,
+            vertical: 12,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: 'Fredoka',
+            fontSize: 30,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        // Stays enabled (and green) during the burst; _onDone ignores
+        // repeat taps. A greyed-out button would read as "wrong".
+        onPressed: () => _onDone(session),
+        icon: const Icon(Icons.check_rounded, size: 40),
+        label: Text(l.doneButton),
+      ),
+    );
+
+    final taskColumn = Column(
+      children: [
+        topBar,
+        const SizedBox(height: 4),
+        Expanded(child: pie),
+        const SizedBox(height: 8),
+        Text(
+          current.task.nameIn(lang),
+          style: t.displaySmall,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 8),
+        if (next != null) _NextPeek(task: next.task, lang: lang),
+        const SizedBox(height: 16),
+        doneButton,
+      ],
+    );
+
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _audio.stop();
@@ -160,123 +288,125 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 16),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      tooltip: l.goHome,
-                      iconSize: 32,
-                      icon: const Icon(
-                        Icons.home_rounded,
-                        color: AppColors.inkSoft,
-                      ),
-                      onPressed: () => context.go('/'),
-                    ),
-                    const Spacer(),
-                    StarCounter(count: stars),
-                    const Spacer(),
-                    IconButton(
-                      tooltip: l.replayAudio,
-                      iconSize: 32,
-                      icon: const Icon(
-                        Icons.volume_up_rounded,
-                        color: AppColors.primary,
-                      ),
-                      onPressed: () => _replay(current.task),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                _ProgressDots(
-                  session: session,
-                  frozenDoneId: _frozen?.$1.task.id,
-                ),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, box) {
-                      final size = math.min(box.maxWidth, box.maxHeight) * 0.92;
-                      return Center(
-                        child: SizedBox.square(
-                          dimension: size,
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            alignment: Alignment.center,
-                            children: [
-                              PieTimer(
-                                fraction: _fraction,
-                                color: AppColors.timer,
-                                trackColor: AppColors.timerTrack,
-                                child: Center(
-                                  child: PictureCircle(
-                                    size: size * 0.62,
-                                    photoPath: current.task.photoPath,
-                                    emoji: current.task.emoji,
-                                  ),
-                                ),
-                              ),
-                              PositionedDirectional(
-                                end: -8,
-                                bottom: -8,
-                                child: Mascot(
-                                  size: size * 0.32,
-                                  mood: _frozen != null
-                                      ? MascotMood.cheer
-                                      : _timeUp
-                                      ? MascotMood.wave
-                                      : MascotMood.idle,
-                                ),
-                              ),
-                              if (_frozen != null)
-                                StarBurst(
-                                  key: ValueKey(_frozen!.$1.task.id),
-                                  size: size,
-                                  onDone: () {
-                                    if (mounted) setState(() => _frozen = null);
-                                  },
-                                ),
-                            ],
-                          ),
+            child: childTextScaling(
+              context,
+              LayoutBuilder(
+                builder: (context, box) {
+                  // Tablet in landscape: the task beside a rail showing where
+                  // the child is in the routine. Phones: one column.
+                  final twoPane =
+                      box.maxWidth >= 840 && box.maxWidth > box.maxHeight;
+                  if (!twoPane) {
+                    return Column(
+                      children: [
+                        _ProgressDots(
+                          session: session,
+                          frozenDoneId: _frozen?.$1.task.id,
                         ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  current.task.nameIn(lang),
-                  style: t.displaySmall,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                if (next != null) _NextPeek(task: next.task, lang: lang),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 80,
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.done,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
+                        Expanded(child: taskColumn),
+                      ],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      Expanded(child: taskColumn),
+                      const SizedBox(width: 24),
+                      SizedBox(
+                        width: 280,
+                        child: _ProgressRail(
+                          session: session,
+                          currentId: current.task.id,
+                          frozenDoneId: _frozen?.$1.task.id,
+                          lang: lang,
+                        ),
                       ),
-                      textStyle: const TextStyle(
-                        fontFamily: 'Fredoka',
-                        fontSize: 30,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    // Stays enabled (and green) during the burst; _onDone ignores
-                    // repeat taps. A greyed-out button would read as "wrong".
-                    onPressed: () => _onDone(session),
-                    icon: const Icon(Icons.check_rounded, size: 40),
-                    label: Text(l.doneButton),
-                  ),
-                ),
-              ],
+                    ],
+                  );
+                },
+              ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Tablet only: the routine's tasks, done ones checked, the current one
+/// highlighted. Small and quiet so the current task stays the focus.
+class _ProgressRail extends StatelessWidget {
+  const _ProgressRail({
+    required this.session,
+    required this.currentId,
+    required this.frozenDoneId,
+    required this.lang,
+  });
+
+  final RoutineSession session;
+  final int currentId;
+  final int? frozenDoneId;
+  final AppLanguage lang;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final t = Theme.of(context).textTheme;
+    return Semantics(
+      label: l.progressRail,
+      container: true,
+      child: Container(
+        padding: const EdgeInsetsDirectional.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(28),
+        ),
+        child: ListView(
+          children: [
+            for (final item in session.tasks)
+              Builder(
+                builder: (context) {
+                  final done = item.isDone || item.task.id == frozenDoneId;
+                  final isCurrent = item.task.id == currentId && !done;
+                  return Container(
+                    margin: const EdgeInsetsDirectional.only(bottom: 6),
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isCurrent
+                          ? AppColors.timerTrack
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          item.task.emoji ?? '⭐',
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            item.task.nameIn(lang),
+                            style: (isCurrent ? t.titleMedium : t.bodyLarge)
+                                ?.copyWith(
+                                  color: done ? AppColors.inkSoft : null,
+                                ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (done)
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: AppColors.done,
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+          ],
         ),
       ),
     );
@@ -297,7 +427,7 @@ class _NextPeek extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(l.nextUp, style: style),
+        Flexible(child: Text(l.nextUp, style: style, maxLines: 1)),
         const SizedBox(width: 6),
         // arrow_forward follows text direction: points left in Hebrew.
         const Icon(
@@ -309,9 +439,11 @@ class _NextPeek extends StatelessWidget {
         Text(task.emoji ?? '', style: const TextStyle(fontSize: 22)),
         const SizedBox(width: 4),
         Flexible(
+          flex: 2,
           child: Text(
             task.nameIn(lang),
             style: style,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),

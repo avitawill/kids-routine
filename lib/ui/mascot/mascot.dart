@@ -5,25 +5,83 @@ import 'package:flutter/material.dart';
 enum MascotMood { idle, cheer, wave }
 
 /// The app's own mascot: a round, mint-green cub drawn in code.
-/// Static poses for now; animations come in M4.
-class Mascot extends StatelessWidget {
+///
+/// Each mood plays one short move (at most 1.5 s) and then rests, so it
+/// never competes with the task for attention: idle blinks now and then, wave
+/// waves once, cheer hops twice. With the system's "remove animations" setting
+/// it holds still.
+class Mascot extends StatefulWidget {
   const Mascot({super.key, this.mood = MascotMood.idle, this.size = 120});
 
   final MascotMood mood;
   final double size;
 
   @override
+  State<Mascot> createState() => _MascotState();
+}
+
+class _MascotState extends State<Mascot> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(vsync: this);
+
+  /// One cycle: the move plays at the start, the rest of the cycle is a rest.
+  static Duration _cycle(MascotMood mood) => switch (mood) {
+    MascotMood.idle => const Duration(seconds: 4),
+    MascotMood.wave => const Duration(milliseconds: 3600),
+    MascotMood.cheer => const Duration(milliseconds: 2400),
+  };
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _restart();
+  }
+
+  @override
+  void didUpdateWidget(Mascot old) {
+    super.didUpdateWidget(old);
+    if (old.mood != widget.mood) _restart();
+  }
+
+  void _restart() {
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _c.stop();
+      _c.value = 0;
+      return;
+    }
+    _c
+      ..duration = _cycle(widget.mood)
+      ..repeat();
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ExcludeSemantics(
-      child: CustomPaint(size: Size.square(size), painter: MascotPainter(mood)),
+      child: RepaintBoundary(
+        child: AnimatedBuilder(
+          animation: _c,
+          builder: (context, _) => CustomPaint(
+            size: Size.square(widget.size),
+            painter: MascotPainter(widget.mood, phase: _c.value),
+          ),
+        ),
+      ),
     );
   }
 }
 
 class MascotPainter extends CustomPainter {
-  MascotPainter(this.mood);
+  /// [phase] is the position in the mood's cycle, 0..1. At 0 every mood is in
+  /// its resting pose.
+  MascotPainter(this.mood, {this.phase = 0});
 
   final MascotMood mood;
+  final double phase;
 
   static const _body = Color(0xFF7FD4B4);
   static const _bodyDark = Color(0xFF4DB38E);
@@ -31,12 +89,39 @@ class MascotPainter extends CustomPainter {
   static const _cheek = Color(0xFFFFB3A7);
   static const _ink = Color(0xFF2D2A4A);
 
+  /// 0..1 within the active part of a cycle, or null while resting.
+  static double? _active(double phase, double fraction) =>
+      phase < fraction ? phase / fraction : null;
+
   @override
   void paint(Canvas canvas, Size size) {
     final s = size.width;
-    final c = Offset(s / 2, s * 0.56);
+    var c = Offset(s / 2, s * 0.56);
     final r = s * 0.36;
     final fill = Paint()..isAntiAlias = true;
+
+    var (left, right) = switch (mood) {
+      MascotMood.idle => (-2.3, 2.3),
+      MascotMood.cheer => (-0.6, 0.6),
+      MascotMood.wave => (-2.3, 0.45),
+    };
+    var blink = false;
+
+    switch (mood) {
+      case MascotMood.idle:
+        blink = phase > 0.95 && phase < 0.99; // ~160 ms
+      case MascotMood.wave:
+        final a = _active(phase, 1.2 / 3.6); // 1.2 s of waving
+        if (a != null) right += 0.4 * math.sin(a * 3 * 2 * math.pi);
+      case MascotMood.cheer:
+        final a = _active(phase, 1.2 / 2.4); // two hops in 1.2 s
+        if (a != null) {
+          final hop = math.sin(a * 2 * math.pi).abs();
+          c = c.translate(0, -hop * s * 0.07);
+          left -= hop * 0.25;
+          right += hop * 0.25;
+        }
+    }
 
     // Arms behind the body.
     void arm(double angle) {
@@ -53,11 +138,6 @@ class MascotPainter extends CustomPainter {
       canvas.restore();
     }
 
-    final (left, right) = switch (mood) {
-      MascotMood.idle => (-2.3, 2.3),
-      MascotMood.cheer => (-0.6, 0.6),
-      MascotMood.wave => (-2.3, 0.45),
-    };
     arm(left);
     arm(right);
 
@@ -79,7 +159,7 @@ class MascotPainter extends CustomPainter {
       fill..color = _belly,
     );
 
-    // Eyes: happy arcs when cheering, dots otherwise.
+    // Eyes: happy arcs when cheering, a line when blinking, dots otherwise.
     final eyeY = c.dy - r * 0.18;
     final stroke = Paint()
       ..color = _ink
@@ -94,6 +174,12 @@ class MascotPainter extends CustomPainter {
           math.pi,
           math.pi,
           false,
+          stroke,
+        );
+      } else if (blink) {
+        canvas.drawLine(
+          eye - Offset(s * 0.04, 0),
+          eye + Offset(s * 0.04, 0),
           stroke,
         );
       } else {
@@ -132,5 +218,6 @@ class MascotPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(MascotPainter old) => old.mood != mood;
+  bool shouldRepaint(MascotPainter old) =>
+      old.mood != mood || old.phase != phase;
 }

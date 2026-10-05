@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/db/database.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../services/backup.dart';
 import '../../../state/providers.dart';
 import '../parent_scaffold.dart';
 
@@ -40,6 +41,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(l.saved)));
+  }
+
+  void _toast(String text) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  Future<void> _export() async {
+    final l = AppLocalizations.of(context);
+    final now = ref.read(clockProvider)();
+    final bytes = await ref.read(backupServiceProvider).export(now);
+    final stamp = now.toIso8601String().substring(0, 10);
+    final saved = await ref
+        .read(parentSessionProvider.notifier)
+        .whileOutside(
+          () => ref
+              .read(backupFilesProvider)
+              .save('kids_routine_backup_$stamp.zip', bytes),
+        );
+    if (saved) _toast(l.backupDone);
+  }
+
+  Future<void> _import() async {
+    final l = AppLocalizations.of(context);
+    final bytes = await ref
+        .read(parentSessionProvider.notifier)
+        .whileOutside(() => ref.read(backupFilesProvider).open());
+    if (bytes == null || !mounted) return;
+    final ok = await confirm(
+      context,
+      title: l.backupImport,
+      body: l.backupImportConfirm,
+      confirmLabel: l.restore,
+      cancelLabel: l.cancel,
+    );
+    if (!ok) return;
+    try {
+      await ref.read(backupServiceProvider).restore(bytes);
+    } on BackupFormatException {
+      _toast(l.backupFailed);
+      return;
+    }
+    // Reload the text fields from the restored child.
+    setState(() => _loaded = false);
+    _toast(l.restoreDone);
   }
 
   @override
@@ -108,6 +154,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             subtitle: Text(l.jewishPackHint),
             value: child?.jewishPack ?? false,
             onChanged: child == null ? null : repo.setJewishPack,
+          ),
+          const Divider(height: 32),
+          Text(l.backupSection, style: t.titleMedium),
+          ListTile(
+            contentPadding: EdgeInsetsDirectional.zero,
+            leading: const Icon(Icons.save_alt_rounded),
+            title: Text(l.backupExport),
+            onTap: _export,
+          ),
+          ListTile(
+            contentPadding: EdgeInsetsDirectional.zero,
+            leading: const Icon(Icons.restore_rounded),
+            title: Text(l.backupImport),
+            onTap: _import,
           ),
         ],
       ),

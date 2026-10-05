@@ -118,7 +118,12 @@ class _DayView extends ConsumerWidget {
           children: [
             const Icon(Icons.star_rounded, color: AppColors.star),
             const SizedBox(width: 6),
-            Text(l.summaryStars(summary.starsEarned), style: t.titleMedium),
+            Flexible(
+              child: Text(
+                l.summaryStars(summary.starsEarned),
+                style: t.titleMedium,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 12),

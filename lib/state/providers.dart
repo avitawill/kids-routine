@@ -8,6 +8,7 @@ import '../data/summary_repository.dart';
 import '../data/task_repository.dart';
 import '../domain/reward_progress.dart';
 import '../services/audio_service.dart';
+import '../services/backup.dart';
 import '../services/media_store.dart';
 import '../services/recorder.dart';
 import '../services/reminders.dart';
@@ -45,6 +46,14 @@ final recorderProvider = Provider<VoiceRecorder>((ref) {
 final remindersProvider = Provider<Reminders>((ref) => LocalReminders());
 
 final photoPickerProvider = Provider<PhotoPicker>((ref) => pickPhoto);
+
+/// Overridden in tests with a fake.
+final backupFilesProvider = Provider<BackupFiles>((ref) => SystemBackupFiles());
+
+final backupServiceProvider = Provider<BackupService>(
+  (ref) =>
+      BackupService(ref.watch(databaseProvider), ref.watch(mediaStoreProvider)),
+);
 
 final repositoryProvider = Provider<RoutineRepository>(
   (ref) => RoutineRepository(ref.watch(databaseProvider)),
