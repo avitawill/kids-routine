@@ -3,7 +3,7 @@
 ## What we're building
 An Android app (phone + tablet) that walks a child through daily routines (morning, noon, evening) one task at a time: a picture, a visual countdown, a big "Done" button, and an immediate star. It's for my daughter, who takes a very long time to get ready. Design for kids who struggle with time awareness and transitions (ADHD-style).
 
-Local-only for now: installed from my machine via `flutter run` / APK sideload. No Play Store yet, but stay Play-compliant (kids/Families policy) so publishing later is cheap.
+Version 1.0 is being prepared for Google Play (kids / Families policy). Build and upload steps, the upload key and the Play Console answers are in `docs/release.md`; listing texts in `store/listing.md`; privacy policy in `docs/privacy-policy.md`.
 
 ## Hard constraints
 - Flutter (latest stable), Android only for now. targetSdk 36. Handle edge-to-edge (SafeArea) and predictive back (PopScope).
@@ -22,7 +22,7 @@ Local-only for now: installed from my machine via `flutter run` / APK sideload. 
 - Images: image_picker
 - Celebration: confetti package or hand-rolled; every animation <= 1.5 s
 - Font: **Fredoka** (OFL), bundled in `assets/fonts/` as static 400/500/600/700 instances cut from the variable font. Chosen over Varela Round (single weight); both had full glyph coverage (א–ת, ׳ ״, ñ á é í ó ú ü ¡ ¿). Never fetch fonts at runtime.
-- Approved extras: `drift_flutter` (SQLite native libs), `drift_dev` (codegen), `flutter_lints` (dev), `path_provider` (app documents folder).
+- Approved extras: `drift_flutter` (SQLite native libs), `drift_dev` (codegen), `flutter_lints` (dev), `path_provider` (app documents folder), `timezone` (needed by flutter_local_notifications), `archive` (backup zip), `file_picker` (system save/open dialogs for backups; no permissions).
 - Sounds: synthesized by `tool/make_sounds.py` into `assets/sounds/` (no third-party audio).
 
 Ask me before adding any dependency not on this list.
@@ -73,6 +73,23 @@ Implementation notes (M2):
 - Daily summary: per task, time from when it appeared on screen to Done, next to its target; per routine, start → finish. Neutral styling, no red. The reminder switch is stored only; notifications arrive in M3.
 - Widget tests unmount the app before closing the test DB (otherwise a failing test hangs the runner). Prefer one-off `get…()` queries over `watch…().first` for single reads.
 
+Implementation notes (M3):
+- Schema v2: `Children.jewishPack`; the upgrade also fills Spanish/English names of built-in tasks where both are still empty (parent edits are kept). Covered by `test/data/migration_test.dart`.
+- Reminders: `upcomingReminders` builds 14 days of local wall-clock times; `syncReminders` re-arms them (inexact, `inexactAllowWhileIdle`, absolute UTC instants, no tz database) on launch, resume and any change to routines, language or gender. Tapping one opens that routine. The Android 13+ notification permission is asked when a reminder switch is turned on; refused → the switch stays off.
+- Jewish pack placement rules live in `lib/domain/pack_placement.dart` (Modeh Ani first, Netilat Yadayim after it, Birchot Hashachar after getting dressed, the blessing before breakfast and lunch, Shema last in the evening); a missing anchor puts the task at the end. Turning the pack off removes those tasks from routines only.
+- Spanish/English task names (for review) are in `lib/data/db/seed.dart` (`seedNamesEs`, `seedNamesEn`). The celebration line is a `select` on the routine type (Spanish needs different articles).
+- Sessions are re-read on resume, so a routine left open overnight starts fresh.
+
+Implementation notes (M4):
+- Mascot moves: idle blink (every 4 s), wave (1.2 s, then rest), cheer (two hops in 1.2 s). Still when the system "remove animations" setting is on.
+- Tablet landscape (>= 840 dp wide and wider than tall): task + progress rail. Phones: portrait only (set in `main.dart`).
+- Accessibility: contrast pairs are asserted in `test/ui/contrast_test.dart` (AA). Every screen is tested at 200% text on a 360x640 phone in he/es/en; child screens cap text scaling at 1.5x (`childTextScaling`) because their type is already large. The pie timer has a screen-reader label with minutes left; nothing on screen shows a number.
+- Backup = one .zip: `backup.json` (format `kids_routine_backup` v1, every table via drift `toJson`) + `media/...`. Restore parses and validates everything first, then replaces all tables in one transaction and the media folder; paths with `..` are ignored.
+- Launcher icons and the 512 px Play icon are generated from `MascotPainter` by `flutter test tool/generate_icons_test.dart`. App name is localized (`res/values*/`): My Routine / השגרה שלי / Mi rutina.
+- Release signing reads `android/key.properties` (not in git) → upload keystore in `%USERPROFILE%\.android-keys\`. Without it, release falls back to the debug key.
+- The release APK's permissions: RECORD_AUDIO, POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, VIBRATE, ACCESS_NETWORK_STATE (from the audio player library; harmless without INTERNET). No INTERNET.
+- Widget tests: DB calls made directly from a test body must go through `tester.runAsync` (fresh drift queries don't complete on fake time); the `settle()` helpers do this.
+
 ## Built-in task library (seed)
 Task names are nouns, so they are gender-neutral ("צחצוח שיניים", not "תצחצחי"). Default minutes in parentheses. Fill Spanish and English names for every task and list them for my review.
 
@@ -91,6 +108,7 @@ Task names are nouns, so they are gender-neutral ("צחצוח שיניים", not
 Original character only; nothing resembling an existing or known character. A simple, round, friendly animal drawn in code (CustomPainter) or as a simple asset, with three states: idle, cheer, wave. The child names it.
 
 ## Milestones — stop after each one, show me, and wait for my OK
+(M1–M4 done; on 2026-10-05 the owner asked to run M3 and M4 through without stopping and prepare the Play release.)
 - **M1 — Morning slice**: `flutter doctor` check; project setup; Drift schema + seed; Home → Task → Celebration for the morning routine only; pie timer; stars. i18n plumbing from day one, but only Hebrew strings filled. Runs on my phone via `flutter run`.
 - **M2 — Parent mode**: gate, routine editor, custom task editor (photo + recording), rewards + redemption, daily summary.
 - **M3 — Full day + languages**: noon/evening routines, reminders, Spanish/English, gendered strings, Jewish pack.

@@ -260,9 +260,11 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
       ),
     );
 
-    final taskColumn = Column(
+    Widget taskColumn({required bool dots}) => Column(
       children: [
         topBar,
+        if (dots)
+          _ProgressDots(session: session, frozenDoneId: _frozen?.$1.task.id),
         const SizedBox(height: 4),
         Expanded(child: pie),
         const SizedBox(height: 8),
@@ -296,20 +298,10 @@ class _TaskScreenState extends ConsumerState<TaskScreen>
                   // the child is in the routine. Phones: one column.
                   final twoPane =
                       box.maxWidth >= 840 && box.maxWidth > box.maxHeight;
-                  if (!twoPane) {
-                    return Column(
-                      children: [
-                        _ProgressDots(
-                          session: session,
-                          frozenDoneId: _frozen?.$1.task.id,
-                        ),
-                        Expanded(child: taskColumn),
-                      ],
-                    );
-                  }
+                  if (!twoPane) return taskColumn(dots: true);
                   return Row(
                     children: [
-                      Expanded(child: taskColumn),
+                      Expanded(child: taskColumn(dots: false)),
                       const SizedBox(width: 24),
                       SizedBox(
                         width: 280,
